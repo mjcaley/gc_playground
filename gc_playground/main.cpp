@@ -2,19 +2,23 @@
 #include <forward_list>
 #include <functional>
 #include <memory>
+#include <vector>
 
 
 struct GCObject
 {
-    GCObject(int value, std::function<void(GCObject*)> traversal_function) :
-        traverse(traversal_function),
+    GCObject(int value, std::function<GCObject*(GCObject*)> traversal_function) :
+        traversal_function(traversal_function),
         mark(0),
         ref_count(0)
     {
         ptr = std::make_unique<int>(value);
     };
     
-    const std::function<void(GCObject*)> traverse;
+    GCObject* traverse()
+    {
+        return traversal_function(this);
+    }
     
     int& operator*() const
     {
@@ -36,6 +40,7 @@ private:
     unsigned int mark;
     unsigned int ref_count;
     std::unique_ptr<int> ptr;
+    std::function<GCObject*(GCObject*)> traversal_function;
 };
 
 
@@ -59,7 +64,10 @@ private:
     GCObject* ref;
 };
 
-void traverse_int(GCObject*) {}
+GCObject* traverse_int(GCObject*)
+{
+    return nullptr;
+}
 
 
 class GC
@@ -67,14 +75,37 @@ class GC
 public:
     GC() = default;
     
-    void mark(std::forward_list<GCObject>& used)
+    std::vector<GCObject*> queue_roots(std::forward_list<GCObject>& used)
     {
-        for (auto& obj : used)
+        std::vector<GCObject*> roots;
+        
+        std::for_each(std::begin(used),
+                     std::end(used),
+                     [&roots](GCObject& obj)
+                     {
+                         if (obj.is_root())
+                         {
+                             roots.emplace_back(&obj);
+                         }
+                     });
+        
+        return roots;
+    }
+    
+    void mark_children(GCObject* obj)
+    {
+        if (obj == nullptr)
         {
-            if (obj.is_root())
-            {
-                obj.set_mark(current_mark);
-            }
+            return;
+        }
+        else if (obj->get_mark() == current_mark)
+        {
+            return;
+        }
+        else
+        {
+            obj->set_mark(current_mark);
+            mark_children(obj->traverse());
         }
     }
     
@@ -82,22 +113,35 @@ public:
     {
         used.remove_if(
             [this](const GCObject& obj) {
-                std::cout << "Sweeping object: " << obj.operator*() << std::endl;
-                return obj.get_mark() != current_mark;
+                bool result = obj.get_mark() != current_mark;
+                if (result)
+                {
+                    std::cout << "Sweeping object: " << obj.operator*() << std::endl;
+                }
+                return result;
             }
         );
     }
     
     void collect()
     {
-        mark(used);
+        auto roots = queue_roots(used);
+        // Created lambda for function pointer, C++17 has std::invoke which looks better
+        //        for (auto& root : roots)
+        //        {
+        //            mark_children(root);
+        //        }
+        auto mark_func = [this](GCObject* obj) { return this->mark_children(obj); };
+        std::for_each(std::begin(roots), std::end(roots), mark_func);
         sweep(used);
         ++current_mark;
     }
     
     GCRef make_int(int value)
     {
+        collect();
         used.emplace_front(GCObject(value, traverse_int));
+        std::cout << "Allocated an integer: " << *used.front() << std::endl;
         return GCRef(&used.front());
     }
     
@@ -112,7 +156,6 @@ void sub_func(GC& gc)
     // Allocate object and let it die
     
     auto i42 = gc.make_int(42);
-    std::cout << "Allocated an integer: " << *i42 << std::endl;
 }
 
 int main(int argc, const char * argv[]) {
@@ -120,8 +163,9 @@ int main(int argc, const char * argv[]) {
     std::cout << "Hello, World!\n";
     
     auto gc = GC();
+    auto thirty_two = gc.make_int(32);
     sub_func(gc);
-    gc.collect();
+    auto eight = gc.make_int(8);
     
     return 0;
 }
