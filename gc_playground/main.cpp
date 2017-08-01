@@ -8,6 +8,13 @@
 #include "gc2.hpp"
 
 
+struct Test
+{
+    Test(GCRef2<int> one, GCRef2<float> two) : one(one), two(two) {}
+    
+    GCRef2<int> one;
+    GCRef2<float> two;
+};
 
 void sub_func(GC& gc)
 {
@@ -25,9 +32,20 @@ void test_gc1()
 }
 
 
-void sub_func(GC2& gc)
+GCRef2<Test> sub_func(GC2& gc)
 {
+    auto doubles = std::vector<GCRef2<double>> { gc.create<double>(1.0),
+        gc.create<double>(2.0),
+        gc.create<double>(3.0),
+        gc.create<double>(4.0),
+        gc.create<double>(5.0) };
+    auto one = gc.create(42);
+    std::cout << "one " << one << std::endl;
+    auto two = gc.create(4.2f);
+    std::cout << "two " << two << std::endl;
+    auto test = gc.create(Test(one, two));
     
+    return test;
 }
 
 void test_gc2()
@@ -46,8 +64,15 @@ void test_gc2()
     for (int i {0}; i < 10; ++i)
     {
         auto floating_point = gc.create(static_cast<float>(i));
-        std::cout << "Value of integer: " << *integer << std::endl;
+//        std::cout << "Value of integer: " << *integer << std::endl;
     }
+    auto doubles = std::vector<GCRef2<double>> { gc.create<double>(1.0),
+        gc.create<double>(2.0),
+        gc.create<double>(3.0),
+        gc.create<double>(4.0),
+        gc.create<double>(5.0) };
+    auto test = sub_func(gc);
+    gc.collect();
 }
 
 
