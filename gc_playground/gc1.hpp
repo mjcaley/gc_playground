@@ -72,10 +72,10 @@ GCObject* traverse_int(GCObject*)
 }
 
 
-class GC
+class GC1
 {
 public:
-    GC() = default;
+    GC1() = default;
     
     std::vector<GCObject*> queue_roots(std::forward_list<GCObject>& used)
     {

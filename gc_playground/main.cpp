@@ -6,6 +6,7 @@
 
 #include "gc1.hpp"
 #include "gc2.hpp"
+#include "gc3.hpp"
 
 
 struct Test
@@ -16,7 +17,7 @@ struct Test
     GCRef2<float> two;
 };
 
-void sub_func(GC& gc)
+void sub_func(GC1& gc)
 {
     // Allocate object and let it die
     
@@ -25,7 +26,7 @@ void sub_func(GC& gc)
 
 void test_gc1()
 {
-        auto gc = GC();
+        auto gc = GC1();
         auto thirty_two = gc.make_int(32);
         sub_func(gc);
         auto eight = gc.make_int(8);
@@ -76,6 +77,13 @@ void test_gc2()
 }
 
 
+void test_gc3()
+{
+    using namespace GC3;
+    auto int_ref = GC::create(42);
+    auto int_ref2 = Ref<int>(42);
+}
+
 
 int main(int argc, const char * argv[]) {
     // insert code here...
@@ -85,7 +93,10 @@ int main(int argc, const char * argv[]) {
 //    test_gc1();
     
     // Second GC
-    test_gc2();
+//    test_gc2();
+    
+    // Third GC
+    test_gc3();
     
     return 0;
 }
