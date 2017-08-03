@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <forward_list>
 #include <iostream>
 #include <memory>
@@ -155,6 +156,7 @@ namespace GC3
     template<typename T>
     struct Ref
     {
+        Ref() { ptr = nullptr; }
         Ref(T value)
         {
             auto object = new_object(value);
@@ -163,11 +165,23 @@ namespace GC3
             GC::add_to_gc(std::move(object));
         }
         Ref(ValueObject<T>* ptr) : ptr(ptr) { ptr->add_reference(); }
-        Ref(const Ref& gcref) : ptr(gcref.ptr) { ptr->add_reference(); }
-        Ref(const WeakRef<T>& gcref) { return WeakRef<T>(ptr); }
+        Ref(const Ref<T>& ref) : ptr(ref.ptr) { ptr->add_reference(); }
+        Ref(const WeakRef<T>& wref)
+        {
+            ptr = wref.ptr;
+            ptr->add_reference();
+        }
         ~Ref() { ptr->del_reference(); }
         
-        WeakRef<T> get_weak_reference() { return W(ptr); }
+        Ref<T>& operator=(const Ref<T>& ref)
+        {
+            ptr = ref.ptr;
+            ptr->add_reference();
+            
+            return *this;
+        }
+        
+        WeakRef<T> get_weak_reference() const { return WeakRef<T>(ptr); }
         
         T& operator*()
         {
@@ -188,15 +202,89 @@ namespace GC3
     template<typename T>
     struct WeakRef
     {
+        WeakRef() { ptr = nullptr; }
         WeakRef(ValueObject<T>* ptr) : ptr(ptr) { ptr->add_weak_reference(); }
-        WeakRef(const WeakRef& gcref) : ptr(gcref.ptr) { ptr->add_weak_reference(); }
+        WeakRef(const WeakRef& ref) : ptr(ref.ptr) { ptr->add_weak_reference(); }
+        WeakRef(const Ref<T>& ref)
+        {
+            ptr = ref.ptr;
+            ptr->add_weak_reference();
+        }
         ~WeakRef() { ptr->del_weak_reference(); }
         
-        Ref<T> get_reference() { return Ref<T>(ptr); }
+        WeakRef<T>& operator=(const WeakRef<T>& ref)
+        {
+            ptr = ref.ptr;
+            ptr->add_weak_reference();
+            
+            return *this;
+        }
+        
+        Ref<T> get_reference() const { return Ref<T>(ptr); }
         
     private:
         ValueObject<T>* ptr;
+        
+        friend Ref<T>;
     };
+    
+    
+    // Ref<->WeakRef conversion functions
+    
+    auto weak_to_ref = [](auto w) { return w.get_reference(); };
+    auto ref_to_weak = [](auto r) { return r.get_weak_reference(); };
+    
+    template<typename T>
+    std::vector<Ref<T>> to_ref(const std::vector<WeakRef<T>>& from)
+    {
+        std::vector<Ref<T>> to;
+        
+        std::transform(from.begin(),
+                       from.end(),
+                       std::back_inserter(to),
+                       weak_to_ref);
+        
+        return to;
+    }
+    
+    template<typename T>
+    std::vector<WeakRef<T>> to_weak_ref(const std::vector<Ref<T>>& from)
+    {
+        std::vector<WeakRef<T>> to;
+        
+        std::transform(from.begin(),
+                       from.end(),
+                       std::back_inserter(to),
+                       ref_to_weak);
+        
+        return to;
+    }
+    
+    template<typename T, std::size_t N>
+    std::array<Ref<T>, N> to_ref(const std::array<WeakRef<T>, N>& from)
+    {
+        std::array<Ref<T>, N> to;
+        
+        for (int i { 0 }; i < N; ++i)
+        {
+            to[i] = Ref<T>(from[i]);
+        }
+        
+        return to;
+    }
+    
+    template<typename T, std::size_t N>
+    std::array<WeakRef<T>, N> to_weak_ref(const std::array<Ref<T>, N>& from)
+    {
+        std::array<WeakRef<T>, N> to;
+        
+        for (int i { 0 }; i < N; ++i)
+        {
+            to[i] = WeakRef<T>(from[i]);
+        }
+        
+        return to;
+    }
 }
 
 

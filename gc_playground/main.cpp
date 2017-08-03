@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 #include <forward_list>
 #include <functional>
@@ -82,13 +83,43 @@ void test_gc3()
     using namespace GC3;
     auto int_ref = GC::create(42);
     auto int_ref2 = Ref<int>(42);
+    
+    std::vector<Ref<int>> vec { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    auto weak_vec = to_weak_ref(vec);
+//
+    std::array<Ref<int>, 10> arr { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    auto weak_arr = to_weak_ref(arr);
+    auto strong_arr = to_ref(weak_arr);
 }
+
+
+template<typename T>
+void f(T value) { std::cout << "generic" << std::endl; }
+
+//template<>
+template<typename U, typename std::size_t N>
+void f(std::array<U, N> value) { std::cout << "array" << std::endl; }
+
+//template<>
+template<typename U>
+void f(std::vector<U> value) { std::cout << "vector" << std::endl; }
+
+//template<>
+template<typename ... Types>
+void f(std::tuple<Types...> value) { std::cout << "tuple" << std::endl; }
+
+
 
 
 int main(int argc, const char * argv[]) {
     // insert code here...
     std::cout << "Hello, World!\n";
 
+    f(42);
+    f(std::array<int, 4> {1,2,3,4});
+    f(std::vector<int>(5));
+    f(std::make_tuple<int, float, double>(1, 2.2, 3.3));
+    
 //    Original GC
 //    test_gc1();
     
