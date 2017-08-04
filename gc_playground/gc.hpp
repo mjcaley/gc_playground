@@ -13,7 +13,7 @@ void mark(Object* object, unsigned int current_mark, T)
     object->set_mark(current_mark);
 }
 
-namespace GC3
+namespace GC
 {
     struct Object
     {
@@ -318,17 +318,9 @@ namespace GC3
 }
 
 
-struct Test3
-{
-    Test3(GC3::Ref<int> one, GC3::Ref<float> two) : one(to_weak_ref(one)), two(to_weak_ref(two)) {}
-    
-    GC3::WeakRef<int> one;
-    GC3::WeakRef<float> two;
-};
 
 
-
-//std::ostream& operator<<(std::ostream& out, const GC3::Object& obj)
+//std::ostream& operator<<(std::ostream& out, const GC::Object& obj)
 //{
 //    out << "GCObject2 { mark:" << obj.get_mark() <<
 //    " ref_count:" << obj.get_ref_count() <<
@@ -337,7 +329,7 @@ struct Test3
 //}
 //
 //template<typename T>
-//std::ostream& operator<<(std::ostream& out, GC3::Ref<T>& obj)
+//std::ostream& operator<<(std::ostream& out, GC::Ref<T>& obj)
 //{
 //    out << "GCRef2 { " <<
 //    "value: " << *obj <<
