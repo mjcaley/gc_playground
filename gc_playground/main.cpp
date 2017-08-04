@@ -93,9 +93,7 @@ void test_gc3()
     
     auto tup = std::make_tuple(Ref<int>(1), Ref<float>(2.2f), Ref<double>(3.3));
     auto weak_tup = to_weak_ref(tup);
-//    auto weak_tup = std::make_tuple(std::get<0>(tup).get_weak_reference(),
-//                                    std::get<1>(tup).get_weak_reference(),
-//                                    std::get<2>(tup).get_weak_reference());
+    auto strong_tup = to_ref(weak_tup);
     
 }
 
