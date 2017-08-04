@@ -7,10 +7,13 @@ unsigned int GC3::GC::current_mark { 1 };
 template<>
 void mark(GC3::Object* object, unsigned int current_mark, Test3)
 {
+    object->set_mark(current_mark);
+    
     auto* test_obj = dynamic_cast<GC3::ValueObject<Test3>*>(object);
     
     auto one_ref = test_obj->ptr->one.get_reference();
     auto two_ref = test_obj->ptr->two.get_reference();
     
-    
+    one_ref.get_pointer()->mark_func(current_mark);
+    two_ref.get_pointer()->mark_func(current_mark);
 }

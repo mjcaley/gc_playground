@@ -7,15 +7,21 @@
 #include <vector>
 
 
+template<typename Object, typename T>
+void mark(Object* object, unsigned int current_mark, T)
+{
+    object->set_mark(current_mark);
+}
+
 namespace GC3
 {
     struct Object
     {
-        Object() : mark(0), ref_count(0), weak_ref_count(0) {}
+        Object() : mark_count(0), ref_count(0), weak_ref_count(0) {}
         virtual ~Object() = default;
         
-        unsigned int get_mark() const { return mark; }
-        void set_mark(unsigned int mark_number) { mark = mark_number; }
+        unsigned int get_mark() const { return mark_count; }
+        void set_mark(unsigned int mark_number) { mark_count = mark_number; }
         
         bool is_root() const { return ref_count > 0; }
         
@@ -27,10 +33,10 @@ namespace GC3
         void add_weak_reference() { ++weak_ref_count; }
         void del_weak_reference() { --weak_ref_count; }
         
-        std::function<void(Object*)> traversal;
+        std::function<void(unsigned int)> mark_func;
         
     private:
-        unsigned int mark;
+        unsigned int mark_count;
         unsigned int ref_count;
         unsigned int weak_ref_count;
     };
@@ -43,7 +49,10 @@ namespace GC3
     struct ValueObject : public Object
     {
         template<typename ... Params>
-        ValueObject(Params... values) : ptr(std::make_unique<T>(values...)) {}
+        ValueObject(Params... values) : ptr(std::make_unique<T>(values...))
+        {
+            mark_func = std::bind(mark<Object, T>, this, std::placeholders::_1, *ptr);
+        }
         ~ValueObject() {}
         
         const std::unique_ptr<T> ptr;
@@ -64,13 +73,13 @@ namespace GC3
         
         static void add_to_gc(std::unique_ptr<Object> object)
         {
+            collect();
             used_list.push_front(std::move(object));
         }
         
         template<typename T, typename ... Params>
         static Ref<T> create(Params ... values)
         {
-            collect();
             auto object = new_object<T>(values...);
             auto reference = Ref<T>(object.get());
             add_to_gc(std::move(object));
@@ -93,7 +102,7 @@ namespace GC3
             return roots;
         }
         
-        static void mark(std::vector<Object*> roots)
+        static void mark_objects(std::vector<Object*> roots)
         {
             for (auto obj : roots)
             {
@@ -103,7 +112,7 @@ namespace GC3
                 }
                 else
                 {
-                    obj->set_mark(current_mark);
+                    obj->mark_func(current_mark);
                 }
             }
         }
@@ -125,7 +134,7 @@ namespace GC3
         static void collect()
         {
             auto roots = get_roots();
-            mark(roots);
+            mark_objects(roots);
             sweep();
             ++current_mark;
         }
@@ -138,7 +147,6 @@ namespace GC3
     template<typename T>
     struct Ref
     {
-        Ref() { ptr = nullptr; }
         template<typename ... Params>
         Ref(Params... values)
         {
@@ -176,6 +184,8 @@ namespace GC3
             return ptr->ptr;
         }
         
+        ValueObject<T>* get_pointer() { return ptr; }
+        
     private:
         ValueObject<T>* ptr;
         
@@ -185,7 +195,6 @@ namespace GC3
     template<typename T>
     struct WeakRef
     {
-        WeakRef() { ptr = nullptr; }
         WeakRef(ValueObject<T>* ptr) : ptr(ptr) { ptr->add_weak_reference(); }
         WeakRef(const WeakRef& ref) : ptr(ref.ptr) { ptr->add_weak_reference(); }
         WeakRef(const Ref<T>& ref)
@@ -317,11 +326,7 @@ struct Test3
     GC3::WeakRef<float> two;
 };
 
-template<typename T>
-void mark(GC3::Object* object, unsigned int current_mark, T)
-{
-    object->set_mark(current_mark);
-}
+
 
 //std::ostream& operator<<(std::ostream& out, const GC3::Object& obj)
 //{
