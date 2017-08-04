@@ -289,6 +289,69 @@ namespace GC3
         
         return to;
     }
+    
+    template<typename ... Ts, std::size_t ... N,
+    typename StrongTuple = std::tuple<Ref<Ts>...>,
+    typename WeakTuple = std::tuple<WeakRef<Ts>...>,
+    typename TupleSize = std::tuple_size<WeakTuple>>
+    StrongTuple to_ref(const WeakTuple& from, TupleSize)
+    {
+        auto result = std::make_tuple(Ref<Ts>(std::get<N>(from))...);
+        return result;
+    }
+    
+    template<typename ... Ts,
+    typename StrongTuple = std::tuple<Ref<Ts>...>,
+    typename WeakTuple = std::tuple<WeakRef<Ts>...>,
+    typename TupleSize = std::tuple_size<WeakTuple>>
+    StrongTuple to_ref(const WeakTuple& from)
+    {
+        auto result = to_ref(from, TupleSize());
+        return result;
+    }
+    
+//    template<std::size_t N,
+//    typename std::index_sequence<N>,
+////    typename StrongTuple = std::tuple<Ref<Ts>...>,
+////    typename WeakTuple = std::tuple<WeakRef<Ts>...>,
+////    typename TupleSize = std::tuple_size<StrongTuple>,
+//    typename ... Ts>
+//    std::tuple<WeakRef<Ts>...> to_weak_ref(const std::tuple<Ref<Ts>...>& from, typename std::tuple_size<std::tuple<Ref<Ts>...>>::value_type)
+//    {
+//        auto result = std::make_tuple(WeakRef<Ts>(std::get<N>(from))...);
+//        return result;
+//    }
+//    
+//    template<typename ... Ts
+////    typename StrongTuple = std::tuple<Ref<Ts>...>,
+////    typename WeakTuple = std::tuple<WeakRef<Ts>...>,
+////    typename TupleSize = std::tuple_size<WeakTuple>>
+//    >
+//    std::tuple<WeakRef<Ts>...> to_weak_ref(const std::tuple<Ref<Ts>...>& from)
+//    {
+//        auto result = to_weak_ref<std::tuple_size<std::tuple<Ref<Ts>...>>::value, Ts...>(from, std::tuple_size<std::tuple<Ref<Ts>...>>::value);
+//        return result;
+//    }
+    
+    template<typename ... Ts, std::size_t ... N,
+    typename StrongTuple = std::tuple<Ref<Ts>...>,
+    typename WeakTuple = std::tuple<WeakRef<Ts>...>,
+    typename TupleSize = std::tuple_size<WeakTuple>>
+    WeakTuple to_weak_ref(const StrongTuple& from, TupleSize)
+    {
+        auto result = std::make_tuple(WeakRef<Ts>(std::get<N>(from))...);
+        return result;
+    }
+    
+    template<typename ... Ts,
+    typename StrongTuple = std::tuple<Ref<Ts>...>,
+    typename WeakTuple = std::tuple<WeakRef<Ts>...>,
+    typename TupleSize = std::tuple_size<WeakTuple>>
+    WeakTuple to_weak_ref(const StrongTuple& from)
+    {
+        auto result = to_ref(from, TupleSize());
+        return result;
+    }
 }
 
 

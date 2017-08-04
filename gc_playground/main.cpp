@@ -90,6 +90,13 @@ void test_gc3()
     std::array<Ref<int>, 10> arr { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     auto weak_arr = to_weak_ref(arr);
     auto strong_arr = to_ref(weak_arr);
+    
+    auto tup = std::make_tuple(Ref<int>(1), Ref<float>(2.2f), Ref<double>(3.3));
+    auto weak_tup = to_weak_ref(tup);
+//    auto weak_tup = std::make_tuple(std::get<0>(tup).get_weak_reference(),
+//                                    std::get<1>(tup).get_weak_reference(),
+//                                    std::get<2>(tup).get_weak_reference());
+    
 }
 
 
