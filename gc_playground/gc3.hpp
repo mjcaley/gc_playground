@@ -293,7 +293,7 @@ namespace GC3
     template<typename From, std::size_t ... Is>
     auto to_ref_impl(const From& from, std::index_sequence<Is...>)
     {
-        return std::make_tuple(std::get<Is>(from).get_reference()...);
+        return std::make_tuple(weak_to_ref(std::get<Is>(from))...);
     }
     
     template<typename ... Ts>
@@ -305,7 +305,7 @@ namespace GC3
     template<typename From, std::size_t ... Is>
     auto to_weak_ref_impl(const From& from, std::index_sequence<Is...>)
     {
-        return std::make_tuple(std::get<Is>(from).get_weak_reference()...);
+        return std::make_tuple(ref_to_weak(std::get<Is>(from))...);
     }
     
     template<typename ... Ts>
