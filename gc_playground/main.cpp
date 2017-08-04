@@ -81,7 +81,7 @@ void test_gc2()
 void test_gc3()
 {
     using namespace GC3;
-    auto int_ref = GC::create(42);
+    auto int_ref = GC::create<int>(42);
     auto int_ref2 = Ref<int>(42);
     
     std::vector<Ref<int>> vec { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
@@ -95,6 +95,7 @@ void test_gc3()
     auto weak_tup = to_weak_ref(tup);
     auto strong_tup = to_ref(weak_tup);
     
+    auto test3 = Ref<Test3>(Ref<int>(1), Ref<float>(2.2));
 }
 
 

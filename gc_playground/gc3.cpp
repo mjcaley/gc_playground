@@ -5,19 +5,12 @@ unsigned int GC3::GC::current_mark { 1 };
 
 
 template<>
-void mark<int>(GC3::Object* object)
+void mark(GC3::Object* object, unsigned int current_mark, Test3)
 {
-    std::cout << "int mark" << std::endl;
-}
-
-template<>
-void mark<Test3>(GC3::Object* object)
-{
-    auto* test_obj = dynamic_cast<Test3*>(object);
+    auto* test_obj = dynamic_cast<GC3::ValueObject<Test3>*>(object);
     
-    auto one_ref = test_obj->one.get_reference();
-    auto two_ref = test_obj->two.get_reference();
+    auto one_ref = test_obj->ptr->one.get_reference();
+    auto two_ref = test_obj->ptr->two.get_reference();
     
-//    mark<int>(one_ref.ptr);
-//    mark<float>(two_ref.ptr);
+    
 }

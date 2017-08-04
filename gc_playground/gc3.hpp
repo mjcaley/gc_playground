@@ -34,7 +34,7 @@ namespace GC3
         unsigned int ref_count;
         unsigned int weak_ref_count;
     };
-    
+
     
     template<typename T> struct WeakRef;
     template<typename T> struct Ref;
@@ -42,24 +42,17 @@ namespace GC3
     template<typename T>
     struct ValueObject : public Object
     {
-        ValueObject(T value)
-        {
-            ptr = std::make_unique<T>(value);
-        }
-        
+        template<typename ... Params>
+        ValueObject(Params... values) : ptr(std::make_unique<T>(values...)) {}
         ~ValueObject() {}
         
-    private:
-        std::unique_ptr<T> ptr;
-        
-        friend WeakRef<T>;
-        friend Ref<T>;
+        const std::unique_ptr<T> ptr;
     };
     
-    template<typename T>
-    std::unique_ptr<ValueObject<T>> new_object(T value)
+    template<typename T, typename ... Params>
+    std::unique_ptr<ValueObject<T>> new_object(Params... values)
     {
-        return std::make_unique<ValueObject<T>>(value);
+        return std::make_unique<ValueObject<T>>(values...);
     }
     
     
@@ -69,27 +62,16 @@ namespace GC3
         GC() = default;
         ~GC() = default;
         
-        //        template<typename T>
-        //        static std::unique_ptr<ValueObject<T>> new_object(T value)
-        //        {
-        //            return std::make_unique<ValueObject<T>>(value);
-        //        }
-        
         static void add_to_gc(std::unique_ptr<Object> object)
         {
             used_list.push_front(std::move(object));
         }
         
-        template<typename T>
-        static Ref<T> create(T value)
+        template<typename T, typename ... Params>
+        static Ref<T> create(Params ... values)
         {
-            //            collect();
-            //            auto ptr = std::make_unique<ValueObject<T>>(value);
-            //            Ref<T> reference(ptr.get());
-            //            used_list.push_front(std::move(ptr));
-            
             collect();
-            auto object = new_object(value);
+            auto object = new_object<T>(values...);
             auto reference = Ref<T>(object.get());
             add_to_gc(std::move(object));
             
@@ -157,9 +139,10 @@ namespace GC3
     struct Ref
     {
         Ref() { ptr = nullptr; }
-        Ref(T value)
+        template<typename ... Params>
+        Ref(Params... values)
         {
-            auto object = new_object(value);
+            auto object = new_object<T>(values...);
             ptr = object.get();
             ptr->add_reference();
             GC::add_to_gc(std::move(object));
@@ -328,12 +311,17 @@ namespace GC3
 
 struct Test3
 {
+    Test3(GC3::Ref<int> one, GC3::Ref<float> two) : one(to_weak_ref(one)), two(to_weak_ref(two)) {}
+    
     GC3::WeakRef<int> one;
     GC3::WeakRef<float> two;
 };
 
 template<typename T>
-void mark(GC3::Object* object) {}
+void mark(GC3::Object* object, unsigned int current_mark, T)
+{
+    object->set_mark(current_mark);
+}
 
 //std::ostream& operator<<(std::ostream& out, const GC3::Object& obj)
 //{
