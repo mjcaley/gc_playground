@@ -231,9 +231,39 @@ namespace GC3
     
     // Ref<->WeakRef conversion functions
     
+    
+    // Implementation functions
     auto weak_to_ref = [](auto w) { return w.get_reference(); };
     auto ref_to_weak = [](auto r) { return r.get_weak_reference(); };
     
+    template<typename From, typename To, std::size_t ... Is>
+    To to_ref_impl(const From& from, std::index_sequence<Is...>)
+    {
+        return To { weak_to_ref(std::get<Is>(from))... };
+    }
+    
+    template<typename From, typename To, std::size_t ... Is>
+    To to_weak_ref_impl(const From& from, std::index_sequence<Is...>)
+    {
+        return To { ref_to_weak(std::get<Is>(from))... };
+    }
+    
+    
+    // Single values
+    template<typename T>
+    Ref<T> to_ref(const WeakRef<T>& from)
+    {
+        return weak_to_ref(from);
+    }
+    
+    template<typename T>
+    WeakRef<T> to_weak_ref(const Ref<T>& from)
+    {
+        return ref_to_weak(from);
+    }
+    
+    
+    //Vectors
     template<typename T>
     std::vector<Ref<T>> to_ref(const std::vector<WeakRef<T>>& from)
     {
@@ -260,58 +290,38 @@ namespace GC3
         return to;
     }
     
+    
+    // Arrays
     template<typename T, std::size_t N>
     std::array<Ref<T>, N> to_ref(const std::array<WeakRef<T>, N>& from)
     {
-        std::array<Ref<T>, N> to;
-        
-        std::vector<Ref<T>> temp;
-        std::transform(from.begin(),
-                       from.end(),
-                       std::back_inserter(temp),
-                       weak_to_ref);
-        std::copy(temp.begin(), temp.end(), to.begin());
-        
-        return to;
+        return to_ref_impl<std::array<WeakRef<T>, N>, std::array<Ref<T>, N>>(from, std::make_index_sequence<N>());
     }
     
     template<typename T, std::size_t N>
     std::array<WeakRef<T>, N> to_weak_ref(const std::array<Ref<T>, N>& from)
     {
-        std::array<WeakRef<T>, N> to;
-        
-        std::vector<WeakRef<T>> temp;
-        std::transform(from.begin(),
-                       from.end(),
-                       std::back_inserter(temp),
-                       ref_to_weak);
-        std::copy(temp.begin(), temp.end(), to.begin());
-        
-        return to;
+        return to_weak_ref_impl<std::array<Ref<T>, N>, std::array<WeakRef<T>, N>>(from, std::make_index_sequence<N>());
     }
     
-    template<typename From, std::size_t ... Is>
-    auto to_ref_impl(const From& from, std::index_sequence<Is...>)
-    {
-        return std::make_tuple(weak_to_ref(std::get<Is>(from))...);
-    }
     
+    // Tuples
     template<typename ... Ts>
     std::tuple<Ref<Ts>...> to_ref(const std::tuple<WeakRef<Ts>...>& from)
     {
-        return to_ref_impl(from, std::make_index_sequence<std::tuple_size<std::tuple<WeakRef<Ts>...>>::value>());
-    }
-    
-    template<typename From, std::size_t ... Is>
-    auto to_weak_ref_impl(const From& from, std::index_sequence<Is...>)
-    {
-        return std::make_tuple(ref_to_weak(std::get<Is>(from))...);
+        return to_ref_impl<std::tuple<WeakRef<Ts>...>,
+                           std::tuple<Ref<Ts>...>>
+            (from,
+             std::make_index_sequence<std::tuple_size<std::tuple<WeakRef<Ts>...>>::value>());
     }
     
     template<typename ... Ts>
     std::tuple<WeakRef<Ts>...> to_weak_ref(const std::tuple<Ref<Ts>...>& from)
     {
-        return to_weak_ref_impl(from, std::make_index_sequence<std::tuple_size<std::tuple<Ref<Ts>...>>::value>());
+        return to_weak_ref_impl<std::tuple<Ref<Ts>...>,
+                                std::tuple<WeakRef<Ts>...>>
+            (from,
+             std::make_index_sequence<std::tuple_size<std::tuple<Ref<Ts>...>>::value>());
     }
 }
 
