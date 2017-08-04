@@ -86,7 +86,7 @@ void test_gc3()
     
     std::vector<Ref<int>> vec { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     auto weak_vec = to_weak_ref(vec);
-//
+
     std::array<Ref<int>, 10> arr { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     auto weak_arr = to_weak_ref(arr);
     auto strong_arr = to_ref(weak_arr);

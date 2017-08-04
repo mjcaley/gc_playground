@@ -265,10 +265,12 @@ namespace GC3
     {
         std::array<Ref<T>, N> to;
         
-        for (int i { 0 }; i < N; ++i)
-        {
-            to[i] = Ref<T>(from[i]);
-        }
+        std::vector<Ref<T>> temp;
+        std::transform(from.begin(),
+                       from.end(),
+                       std::back_inserter(temp),
+                       weak_to_ref);
+        std::copy(temp.begin(), temp.end(), to.begin());
         
         return to;
     }
@@ -278,10 +280,12 @@ namespace GC3
     {
         std::array<WeakRef<T>, N> to;
         
-        for (int i { 0 }; i < N; ++i)
-        {
-            to[i] = WeakRef<T>(from[i]);
-        }
+        std::vector<WeakRef<T>> temp;
+        std::transform(from.begin(),
+                       from.end(),
+                       std::back_inserter(temp),
+                       ref_to_weak);
+        std::copy(temp.begin(), temp.end(), to.begin());
         
         return to;
     }
