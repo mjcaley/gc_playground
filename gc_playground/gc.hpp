@@ -7,11 +7,8 @@
 #include <vector>
 
 
-template<typename Object, typename T>
-void mark(Object* object, unsigned int current_mark, T)
-{
-    object->set_mark(current_mark);
-}
+template<typename O, typename T>
+void traverse(O* object, unsigned int current_mark, T) {}
 
 namespace GC
 {
@@ -33,7 +30,15 @@ namespace GC
         void add_weak_reference() { ++weak_ref_count; }
         void del_weak_reference() { --weak_ref_count; }
         
-        std::function<void(unsigned int)> mark_func;
+        std::function<void(unsigned int)> traverse_func;
+        void mark(unsigned int current_mark)
+        {
+            if (current_mark != mark_count)
+            {
+                mark_count = current_mark;
+                traverse_func(current_mark);
+            }
+        }
         
     private:
         unsigned int mark_count;
@@ -51,7 +56,7 @@ namespace GC
         template<typename ... Params>
         ValueObject(Params... values) : ptr(std::make_unique<T>(values...))
         {
-            mark_func = std::bind(mark<Object, T>, this, std::placeholders::_1, *ptr);
+            traverse_func = std::bind(traverse<Object, T>, this, std::placeholders::_1, *ptr);
         }
         ~ValueObject() {}
         
@@ -112,7 +117,7 @@ namespace GC
                 }
                 else
                 {
-                    obj->mark_func(current_mark);
+                    obj->mark(current_mark);
                 }
             }
         }
