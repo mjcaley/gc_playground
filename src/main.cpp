@@ -5,7 +5,8 @@
 #include <memory>
 #include <vector>
 
-#include "gc.hpp"
+#include "GC/All.hpp"
+
 
 using GC::Ref;
 using GC::WeakRef;

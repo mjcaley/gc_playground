@@ -1,0 +1,50 @@
+#pragma once
+
+#include <memory>
+
+#include "GC/GC.hpp"
+#include "GC/ValueObject.hpp"
+
+
+namespace GC
+{
+    struct GC;
+    template<typename T> struct WeakRef;
+    
+    template<typename T>
+    struct Ref
+    {
+        template<typename ... Params>
+        Ref(Params... values)
+        {
+            auto object = new_object<T>(values...);
+            ptr = object.get();
+            ptr->add_reference();
+            GC::GC::add_to_gc(std::move(object));
+        }
+        Ref(ValueObject<T>* ptr) : ptr(ptr) { ptr->add_reference(); }
+        Ref(const Ref<T>& ref) : ptr(ref.ptr) { ptr->add_reference(); }
+        ~Ref() { ptr->del_reference(); }
+        
+        operator WeakRef<T>() { return get_weak_reference(); }
+        
+        WeakRef<T> get_weak_reference() const { return WeakRef<T>(ptr); }
+        
+        T& operator*()
+        {
+            return *ptr->ptr;
+        }
+        
+        T* operator->()
+        {
+            return ptr->ptr.get();
+        }
+        
+        ValueObject<T>* get_pointer() { return ptr; }
+        
+    private:
+        ValueObject<T>* ptr;
+        
+        friend WeakRef<T>;
+    };
+}
