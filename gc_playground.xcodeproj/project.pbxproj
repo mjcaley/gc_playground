@@ -51,13 +51,13 @@
 		2738BDFE1F39280F005D1E1C /* GC */ = {
 			isa = PBXGroup;
 			children = (
-				2738BDFF1F39289F005D1E1C /* Object.hpp */,
-				2738BE001F392936005D1E1C /* ValueObject.hpp */,
+				2738BE0D1F3937EB005D1E1C /* All.hpp */,
 				2738BE011F392986005D1E1C /* GC.hpp */,
-				2738BE031F392A70005D1E1C /* WeakRef.hpp */,
+				2738BDFF1F39289F005D1E1C /* Object.hpp */,
 				2738BE041F392AB0005D1E1C /* Ref.hpp */,
 				2738BE051F392C09005D1E1C /* Utility.hpp */,
-				2738BE0D1F3937EB005D1E1C /* All.hpp */,
+				2738BE001F392936005D1E1C /* ValueObject.hpp */,
+				2738BE031F392A70005D1E1C /* WeakRef.hpp */,
 			);
 			path = GC;
 			sourceTree = "<group>";
