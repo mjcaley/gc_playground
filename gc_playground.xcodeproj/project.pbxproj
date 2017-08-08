@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		2738BE0B1F392D93005D1E1C /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 278B41701F015F5A00D155B8 /* main.cpp */; };
-		2738BE0C1F392F2C005D1E1C /* GC2.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27FD47941F321C7C003499C4 /* GC2.cpp */; };
+		2738BE0C1F392F2C005D1E1C /* GC.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 27FD47941F321C7C003499C4 /* GC.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -34,7 +34,7 @@
 		278B416D1F015F5A00D155B8 /* gc_playground */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gc_playground; sourceTree = BUILT_PRODUCTS_DIR; };
 		278B41701F015F5A00D155B8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		27FD47901F2FB41C003499C4 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
-		27FD47941F321C7C003499C4 /* GC2.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GC2.cpp; sourceTree = "<group>"; };
+		27FD47941F321C7C003499C4 /* GC.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GC.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,7 +82,7 @@
 		2738BE081F392D27005D1E1C /* GC */ = {
 			isa = PBXGroup;
 			children = (
-				27FD47941F321C7C003499C4 /* GC2.cpp */,
+				27FD47941F321C7C003499C4 /* GC.cpp */,
 			);
 			path = GC;
 			sourceTree = "<group>";
@@ -163,7 +163,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2738BE0C1F392F2C005D1E1C /* GC2.cpp in Sources */,
+				2738BE0C1F392F2C005D1E1C /* GC.cpp in Sources */,
 				2738BE0B1F392D93005D1E1C /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
