@@ -19,12 +19,12 @@ namespace GC
         {
             auto object = new_object<T>(values...);
             ptr = object.get();
-            ptr->add_reference();
+            ptr->reference();
             GC::GC::add_to_gc(std::move(object));
         }
-        Ref(ValueObject<T>* ptr) : ptr(ptr) { ptr->add_reference(); }
-        Ref(const Ref<T>& ref) : ptr(ref.ptr) { ptr->add_reference(); }
-        ~Ref() { ptr->del_reference(); }
+        Ref(ValueObject<T>* ptr) : ptr(ptr) { ptr->reference(); }
+        Ref(const Ref<T>& ref) : ptr(ref.ptr) { ptr->reference(); }
+        ~Ref() { ptr->dereference(); }
         
         operator WeakRef<T>() { return get_weak_reference(); }
         

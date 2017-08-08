@@ -15,7 +15,7 @@ namespace GC
         {
             if (ptr)
             {
-                ptr->add_weak_reference();
+                ptr->reference_weak();
             }
         }
         
@@ -23,7 +23,7 @@ namespace GC
         {
             if (ptr)
             {
-                ptr->add_weak_reference();
+                ptr->reference_weak();
             }
         }
         
@@ -31,7 +31,7 @@ namespace GC
         {
             if (ptr)
             {
-                ptr->del_weak_reference();
+                ptr->dereference_weak();
             }
         }
         

@@ -18,12 +18,12 @@ namespace GC
         bool is_root() const { return ref_count > 0; }
         
         unsigned int get_ref_count() const { return ref_count; }
-        void add_reference() { ++ref_count; }
-        void del_reference() { --ref_count; }
+        void reference() { ++ref_count; }
+        void dereference() { --ref_count; }
         
         unsigned int get_weak_ref_count() const { return weak_ref_count; }
-        void add_weak_reference() { ++weak_ref_count; }
-        void del_weak_reference() { --weak_ref_count; }
+        void reference_weak() { ++weak_ref_count; }
+        void dereference_weak() { --weak_ref_count; }
         
         std::function<void(unsigned int)> traverse_func;
         void mark(unsigned int current_mark)
