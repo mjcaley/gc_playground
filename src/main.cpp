@@ -26,15 +26,18 @@ struct Test3
 };
 
 template<>
-void traverse(Object* object, unsigned int current_mark, Test3)
+void traverse(Test3* value, unsigned int current_mark)
 {
-    auto* test_obj = dynamic_cast<ValueObject<Test3>*>(object);
-    
-    auto one_ref = test_obj->ptr->one.get_reference();
-    auto two_ref = test_obj->ptr->two.get_reference();
-    
-    one_ref.mark(current_mark);
-    two_ref.mark(current_mark);
+    if (value->one)
+    {
+        Ref<int> one_ref = value->one;
+        one_ref.mark(current_mark);
+    }
+    if (value->two)
+    {
+        Ref<float> two_ref = value->two;
+        two_ref.mark(current_mark);
+    }
 }
 
 
@@ -48,14 +51,11 @@ struct TestA
 };
 
 template<>
-void traverse(Object* object, unsigned int current_mark, TestA)
+void traverse(TestA* value, unsigned int current_mark)
 {
-    auto* testa_obj = dynamic_cast<ValueObject<TestA>*>(object);
-
-    WeakRef<TestB> weak_ref = testa_obj->ptr->test_b;
-    if (weak_ref)
+    if (value->test_b)
     {
-        auto ref = weak_ref.get_reference();
+        Ref<TestB> ref = value->test_b;
         ref.mark(current_mark);
     }
 }
@@ -68,14 +68,11 @@ struct TestB
 };
 
 template<>
-void traverse(Object* object, unsigned int current_mark, TestB)
+void traverse(TestB* value, unsigned int current_mark)
 {
-    auto* testa_obj = dynamic_cast<ValueObject<TestB>*>(object);
-    
-    WeakRef<TestA> weak_ref = testa_obj->ptr->test_a;
-    if (weak_ref)
+    if (value->test_a)
     {
-        auto ref = weak_ref.get_reference();
+        Ref<TestA> ref = value->test_a;
         ref.mark(current_mark);
     }
 }
@@ -107,6 +104,7 @@ void test_gc3()
     Ref<int> strong_int = weak_int;
     
     auto int_ref2 = Ref<int>(42);
+    int_ref2 = Ref<int>(31);
     
     std::vector<Ref<int>> vec { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
     std::vector<WeakRef<int>> w_vec(vec.begin(), vec.end());

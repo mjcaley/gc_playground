@@ -2,8 +2,8 @@
 
 #include <functional>
 
-template<typename O, typename T>
-void traverse(O* object, unsigned int current_mark, T) {}
+template<typename T>
+void traverse(T* object, unsigned int current_mark) {}
 
 namespace GC
 {

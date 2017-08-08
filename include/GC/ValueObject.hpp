@@ -14,7 +14,7 @@ namespace GC
         template<typename ... Params>
         ValueObject(Params... values) : ptr(std::make_unique<T>(values...))
         {
-            traverse_func = std::bind(traverse<Object, T>, this, std::placeholders::_1, *ptr);
+            traverse_func = std::bind(traverse<T>, ptr.get(), std::placeholders::_1);
         }
         ~ValueObject() {}
         
