@@ -33,8 +33,8 @@ void traverse(Object* object, unsigned int current_mark, Test3)
     auto one_ref = test_obj->ptr->one.get_reference();
     auto two_ref = test_obj->ptr->two.get_reference();
     
-    one_ref.get_pointer()->mark(current_mark);
-    two_ref.get_pointer()->mark(current_mark);
+    one_ref.mark(current_mark);
+    two_ref.mark(current_mark);
 }
 
 
@@ -56,7 +56,7 @@ void traverse(Object* object, unsigned int current_mark, TestA)
     if (weak_ref)
     {
         auto ref = weak_ref.get_reference();
-        ref.get_pointer()->mark(current_mark);
+        ref.mark(current_mark);
     }
 }
 
@@ -76,7 +76,7 @@ void traverse(Object* object, unsigned int current_mark, TestB)
     if (weak_ref)
     {
         auto ref = weak_ref.get_reference();
-        ref.get_pointer()->mark(current_mark);
+        ref.mark(current_mark);
     }
 }
 

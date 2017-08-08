@@ -40,7 +40,7 @@ namespace GC
             return ptr->ptr.get();
         }
         
-        ValueObject<T>* get_pointer() { return ptr; }
+        void mark(unsigned int new_mark) { ptr->mark(new_mark); }
         
     private:
         ValueObject<T>* ptr;
