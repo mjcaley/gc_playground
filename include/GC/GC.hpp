@@ -39,5 +39,9 @@ namespace GC
     private:
         static std::forward_list<std::unique_ptr<Object>> used_list;
         static unsigned int current_mark;
+        static unsigned int num_objects;
+        static unsigned int objects_last_collection;
+        
+        static bool trigger_collection();
     };
 }

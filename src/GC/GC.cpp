@@ -8,12 +8,15 @@
 
 std::forward_list<std::unique_ptr<GC::Object>> GC::GC::used_list;
 unsigned int GC::GC::current_mark { 1 };
+unsigned int GC::GC::num_objects { 0 };
+unsigned int GC::GC::objects_last_collection { 0 };
 
 
 void GC::GC::add_to_gc(std::unique_ptr<Object> object)
 {
     collect();
     used_list.push_front(std::move(object));
+    ++num_objects;
 }
 
 std::vector<GC::Object*> GC::GC::get_roots()
@@ -53,8 +56,12 @@ void GC::GC::sweep()
                             bool result = obj->get_mark() != current_mark;
                             if (result)
                             {
-                                std::cout << "Sweeping object: " << &obj << std::endl;
+                                --num_objects;
                             }
+//                            if (result)
+//                            {
+//                                std::cout << "Sweeping object: " << &obj << std::endl;
+//                            }
                             return result;
                         }
                         );
@@ -62,8 +69,33 @@ void GC::GC::sweep()
 
 void GC::GC::collect()
 {
-    auto roots = get_roots();
-    mark_objects(roots);
-    sweep();
-    ++current_mark;
+    if (trigger_collection())
+    {
+        auto roots = get_roots();
+        mark_objects(roots);
+        sweep();
+        ++current_mark;
+        objects_last_collection = num_objects;
+    }
+}
+
+bool GC::GC::trigger_collection()
+{
+    if (num_objects == 0)
+    {
+        return false;
+    }
+    if (objects_last_collection < num_objects)
+    {
+        return false;
+    }
+    else if ((num_objects - objects_last_collection) / num_objects < 0.25)
+    {
+        // Less than 25% new objects allocated
+        return false;
+    }
+    else
+    {
+        return true;
+    }
 }
