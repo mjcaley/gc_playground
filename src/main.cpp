@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "GC/All.hpp"
+#include "performance.hpp"
 
 
 using GC::Ref;
@@ -22,21 +23,21 @@ struct Test3
     WeakRef<int> one;
     WeakRef<float> two;
     
-    friend void traverse(Object*, unsigned int, Test3);
+    friend void traverse(Test3*, unsigned int);
 };
 
 template<>
-void traverse(Test3* value, unsigned int current_mark)
+void traverse(Test3* value, unsigned int new_mark)
 {
     if (value->one)
     {
         Ref<int> one_ref = value->one;
-        one_ref.mark(current_mark);
+        one_ref.mark(new_mark);
     }
     if (value->two)
     {
         Ref<float> two_ref = value->two;
-        two_ref.mark(current_mark);
+        two_ref.mark(new_mark);
     }
 }
 
@@ -47,16 +48,16 @@ struct TestA
 {
     WeakRef<TestB> test_b;
     
-    friend void traverse(Object*, unsigned int, TestA);
+    friend void traverse(TestA*, unsigned int);
 };
 
 template<>
-void traverse(TestA* value, unsigned int current_mark)
+void traverse(TestA* value, unsigned int new_mark)
 {
     if (value->test_b)
     {
         Ref<TestB> ref = value->test_b;
-        ref.mark(current_mark);
+        ref.mark(new_mark);
     }
 }
 
@@ -64,16 +65,16 @@ struct TestB
 {
     WeakRef<TestA> test_a;
     
-    friend void traverse(Object*, unsigned int, TestB);
+    friend void traverse(TestB*, unsigned int);
 };
 
 template<>
-void traverse(TestB* value, unsigned int current_mark)
+void traverse(TestB* value, unsigned int new_mark)
 {
     if (value->test_a)
     {
         Ref<TestA> ref = value->test_a;
-        ref.mark(current_mark);
+        ref.mark(new_mark);
     }
 }
 
@@ -125,7 +126,9 @@ void test_gc3()
 int main(int argc, const char * argv[]) {
     std::cout << "GC Playground" <<std::endl;
     
-    test_gc3();
+//    test_gc3();
+//    GC::GC::collect();
+    time();
     
     return 0;
 }
