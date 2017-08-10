@@ -16,9 +16,6 @@ namespace GC
     class GC
     {
     public:
-        GC() = default;
-        ~GC() = default;
-        
         static void add_to_gc(std::unique_ptr<Object> object);
         
         template<typename T, typename ... Params>
