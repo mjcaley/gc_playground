@@ -3,11 +3,12 @@
 #include <array>
 #include <utility>
 
-#include "GC/Ref.hpp"
-#include "GC/WeakRef.hpp"
 
 namespace GC
 {
+    template<typename T> struct Ref;
+    template<typename T> struct WeakRef;
+
     // Ref<->WeakRef conversion functions
     template<typename To, typename From, std::size_t ... Is>
     To convert_impl(From& from, std::index_sequence<Is...>)

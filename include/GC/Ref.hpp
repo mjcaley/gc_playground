@@ -3,12 +3,11 @@
 #include <memory>
 
 #include "GC/GC.hpp"
-#include "GC/ValueObject.hpp"
 
 
 namespace GC
 {
-    struct GC;
+    template<typename T> struct ValueObject;
     template<typename T> struct WeakRef;
     
     template<typename T>

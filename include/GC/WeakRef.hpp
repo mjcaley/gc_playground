@@ -1,17 +1,16 @@
 #pragma once
 
-#include "GC/ValueObject.hpp"
-
 
 namespace GC
 {
     template <typename T> struct Ref;
+    template<typename T> struct ValueObject;
     
     template<typename T>
     struct WeakRef
     {
         WeakRef() : ptr(nullptr) {};
-        WeakRef(ValueObject<T>* ptr) : ptr(ptr)
+        explicit WeakRef(ValueObject<T>* ptr) : ptr(ptr)
         {
             if (ptr)
             {

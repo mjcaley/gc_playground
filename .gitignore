@@ -1,5 +1,5 @@
 
-# Created by https://www.gitignore.io/api/git,c++,clion,xcode,netbeans,visualstudio,visualstudiocode
+# Created by https://www.gitignore.io/api/git,c++,clion,xcode,netbeans,visualstudio,visualstudiocode,cmake
 
 ### C++ ###
 # Prerequisites
@@ -96,6 +96,17 @@ fabric.properties
 
 # Sonarlint plugin
 .idea/sonarlint
+
+### CMake ###
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
 
 ### Git ###
 *.orig
@@ -441,4 +452,4 @@ __pycache__/
 # By default, sensitive information, such as encrypted password
 # should be stored in the .pubxml.user file.
 
-# End of https://www.gitignore.io/api/git,c++,clion,xcode,netbeans,visualstudio,visualstudiocode
+# End of https://www.gitignore.io/api/git,c++,clion,xcode,netbeans,visualstudio,visualstudiocode,cmake

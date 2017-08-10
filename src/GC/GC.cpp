@@ -3,7 +3,6 @@
 #include <vector>
 
 #include "GC/GC.hpp"
-#include "GC/Object.hpp"
 
 
 std::forward_list<std::unique_ptr<GC::Object>> GC::GC::used_list;
