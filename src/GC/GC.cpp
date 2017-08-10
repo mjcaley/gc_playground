@@ -16,7 +16,7 @@ void GC::GC::add_to_gc(std::unique_ptr<Object> object)
     used_list.push_front(std::move(object));
     ++counter.created;
     
-    if (trigger_collection())
+    if (counter.created > counter.existing/4)
     {
         collect();
     }
@@ -74,16 +74,4 @@ void GC::GC::collect()
     sweep();
     ++current_mark;
     counter.resolve();
-}
-
-bool GC::GC::trigger_collection()
-{
-    if (counter.created > counter.existing/4)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
 }

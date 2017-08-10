@@ -57,7 +57,5 @@ namespace GC
             }
         };
         static AllocationCounter counter;
-        
-        static bool trigger_collection();
     };
 }

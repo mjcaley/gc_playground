@@ -55,7 +55,7 @@ void time()
     
     for (int test_num { 1 }; test_num <= 100; ++test_num)
     {
-        std::vector<int> values ( 100000 );
+        std::vector<int> values ( 1000000 );
         engine.seed(test_num);
         std::generate(std::begin(values), std::end(values), [&engine](){return engine(); });
         
