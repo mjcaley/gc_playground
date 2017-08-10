@@ -8,15 +8,18 @@
 
 std::forward_list<std::unique_ptr<GC::Object>> GC::GC::used_list;
 unsigned int GC::GC::current_mark { 1 };
-unsigned int GC::GC::num_objects { 0 };
-unsigned int GC::GC::objects_last_collection { 0 };
+GC::GC::AllocationCounter GC::GC::counter;
 
 
 void GC::GC::add_to_gc(std::unique_ptr<Object> object)
 {
-    collect();
     used_list.push_front(std::move(object));
-    ++num_objects;
+    ++counter.created;
+    
+    if (trigger_collection())
+    {
+        collect();
+    }
 }
 
 std::vector<GC::Object*> GC::GC::get_roots()
@@ -56,12 +59,9 @@ void GC::GC::sweep()
                             bool result = obj->get_mark() != current_mark;
                             if (result)
                             {
-                                --num_objects;
+                                ++counter.deleted;
                             }
-//                            if (result)
-//                            {
-//                                std::cout << "Sweeping object: " << &obj << std::endl;
-//                            }
+                            
                             return result;
                         }
                         );
@@ -69,33 +69,21 @@ void GC::GC::sweep()
 
 void GC::GC::collect()
 {
-    if (trigger_collection())
-    {
-        auto roots = get_roots();
-        mark_objects(roots);
-        sweep();
-        ++current_mark;
-        objects_last_collection = num_objects;
-    }
+    auto roots = get_roots();
+    mark_objects(roots);
+    sweep();
+    ++current_mark;
+    counter.resolve();
 }
 
 bool GC::GC::trigger_collection()
 {
-    if (num_objects == 0)
+    if (counter.created > counter.existing/4)
     {
-        return false;
-    }
-    if (objects_last_collection < num_objects)
-    {
-        return false;
-    }
-    else if ((num_objects - objects_last_collection) / num_objects < 0.25)
-    {
-        // Less than 25% new objects allocated
-        return false;
+        return true;
     }
     else
     {
-        return true;
+        return false;
     }
 }

@@ -39,8 +39,24 @@ namespace GC
     private:
         static std::forward_list<std::unique_ptr<Object>> used_list;
         static unsigned int current_mark;
-        static unsigned int num_objects;
-        static unsigned int objects_last_collection;
+
+        struct AllocationCounter
+        {
+            std::uintmax_t existing { 0 };
+            std::uintmax_t created { 0 };
+            std::uintmax_t deleted { 0 };
+            
+            std::uintmax_t resolve()
+            {
+                existing += created;
+                existing -= deleted;
+                created = 0;
+                deleted = 0;
+                
+                return existing;
+            }
+        };
+        static AllocationCounter counter;
         
         static bool trigger_collection();
     };
