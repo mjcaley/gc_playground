@@ -1,21 +1,17 @@
 cmake_minimum_required(VERSION 3.8)
-project(gc_playground)
+#project(libgc_playground)
 
-set(CMAKE_CXX_STANDARD 14)
+set(GC_PLAYGROUND_INCLUDE include/GC)
+set(CATCH_INCLUDE include/Catch)
 
-include_directories(include)
+# GC Playground library
+add_subdirectory(src)
 
-set(SOURCE_FILES
-        include/GC/All.hpp
-        include/GC/GC.hpp
-        include/GC/Object.hpp
-        include/GC/Ref.hpp
-        include/GC/Utility.hpp
-        include/GC/ValueObject.hpp
-        include/GC/WeakRef.hpp
-        src/GC/GC.cpp
-        src/main.cpp
-        src/performance.cpp
-        src/performance.hpp)
+# Demo program
+add_subdirectory(demo)
 
-add_executable(gc_playground ${SOURCE_FILES})
+# Performance test
+add_subdirectory(perftest)
+
+# Tests
+add_subdirectory(test)

@@ -49,13 +49,13 @@ void time()
 {
     std::mt19937 engine;
     std::chrono::high_resolution_clock clock;
-    std::vector<double> native_results;
-    std::vector<double> gc_results;
-    std::vector<double> shared_results;
+    std::vector<long double> native_results;
+    std::vector<long double> gc_results;
+    std::vector<long double> shared_results;
     
     for (int test_num { 1 }; test_num <= 100; ++test_num)
     {
-        std::vector<int> values ( 1000000 );
+        std::vector<int> values ( 100000 );
         engine.seed(test_num);
         std::generate(std::begin(values), std::end(values), [&engine](){return engine(); });
         
@@ -84,9 +84,9 @@ void time()
         std::cout << "Shared time: " << shared_diff.count() << std::endl;
     }
     
-    double native_avg = std::accumulate(std::begin(native_results), std::end(native_results), 0.0) / native_results.size();
-    double gc_avg = std::accumulate(std::begin(gc_results), std::end(gc_results), 0.0) / gc_results.size();
-    double shared_avg = std::accumulate(std::begin(shared_results), std::end(shared_results), 0.0) / shared_results.size();
+    double native_avg = std::accumulate(std::begin(native_results), std::end(native_results), 0.0L) / native_results.size();
+    double gc_avg = std::accumulate(std::begin(gc_results), std::end(gc_results), 0.0L) / gc_results.size();
+    double shared_avg = std::accumulate(std::begin(shared_results), std::end(shared_results), 0.0L) / shared_results.size();
     std::cout << "Average:" <<
         " Native: " << native_avg <<
         " GC: " << gc_avg <<
