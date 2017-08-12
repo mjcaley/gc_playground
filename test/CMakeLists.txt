@@ -7,7 +7,8 @@ add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE})
 
 set(TEST_SOURCES
-    test_main.cpp)
+        test_main.cpp
+        test_object.cpp)
 
 add_executable(gc_test ${TEST_SOURCES})
 
