@@ -8,8 +8,5 @@ set(TEST_SOURCES
 
 add_executable(tests ${TEST_SOURCES})
 
-add_library(Catch INTERFACE)
-target_include_directories(Catch INTERFACE "../${CATCH_INCLUDE}")
-
-target_include_directories(tests PUBLIC "../${GC_PLAYGROUND_INCLUDE}")
-target_link_libraries(tests libgc_playground Catch)
+target_include_directories(tests PUBLIC ${GC_PLAYGROUND_INCLUDE} ${CATCH_INCLUDE})
+target_link_libraries(tests libgc_playground)
