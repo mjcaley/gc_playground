@@ -69,7 +69,7 @@ TEST_CASE( "Object mark function", "[gc][object]" )
     o.traverse_func = [](unsigned int mark) {};
 
     o.mark(MARK);
-    
+
     REQUIRE(o.get_mark() == MARK);
 }
 
