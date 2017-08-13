@@ -10,7 +10,8 @@ set(TEST_SOURCES
         test_main.cpp
         test_object.cpp
         test_ref.cpp
-        test_valueobject.cpp)
+        test_valueobject.cpp
+        test_weakref.cpp)
 
 add_executable(gc_test ${TEST_SOURCES})
 
