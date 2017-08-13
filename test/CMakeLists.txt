@@ -10,6 +10,7 @@ set(TEST_SOURCES
         test_main.cpp
         test_object.cpp
         test_ref.cpp
+        test_utility.cpp
         test_valueobject.cpp
         test_weakref.cpp)
 
