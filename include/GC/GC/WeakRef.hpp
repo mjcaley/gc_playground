@@ -46,6 +46,7 @@ namespace GC
             }
             return Ref<T>(ptr);
         }
+        
         bool has_reference() const { return ptr != nullptr; }
         
     private:
