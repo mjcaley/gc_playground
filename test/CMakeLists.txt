@@ -3,7 +3,13 @@ project(tests)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# Options for CodeCoverage
 include(CodeCoverage)
+set(COVERAGE_EXCLUDES
+        */test/*
+        */include/Catch/*
+        */Applications/*
+        */v1/*)
 APPEND_COVERAGE_COMPILER_FLAGS()
 
 add_library(Catch INTERFACE)
