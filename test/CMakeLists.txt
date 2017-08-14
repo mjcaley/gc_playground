@@ -1,23 +1,29 @@
 cmake_minimum_required(VERSION 3.8)
-project(gc_playground_test)
+project(tests)
 
 set(CMAKE_CXX_STANDARD 14)
+
+include(CodeCoverage)
+APPEND_COVERAGE_COMPILER_FLAGS()
 
 add_library(Catch INTERFACE)
 target_include_directories(Catch INTERFACE ${CATCH_INCLUDE})
 
 set(TEST_SOURCES
         test_main.cpp
+        test_gc.cpp
         test_object.cpp
         test_ref.cpp
         test_utility.cpp
         test_valueobject.cpp
         test_weakref.cpp)
 
-add_executable(gc_test ${TEST_SOURCES})
+add_executable(tests ${TEST_SOURCES})
 
-target_include_directories(gc_test PUBLIC ${GC_PLAYGROUND_INCLUDE})
-target_link_libraries(gc_test libgc_playground Catch)
+target_include_directories(tests PUBLIC ${GC_PLAYGROUND_INCLUDE})
+target_link_libraries(tests libgc_playground Catch)
+
+setup_target_for_coverage(NAME tests_coverage EXECUTABLE tests DEPENDENCIES tests)
 
 enable_testing()
 add_test(NAME TestBase COMMAND gc_test)
