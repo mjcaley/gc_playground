@@ -16,8 +16,25 @@ namespace GC
     class GC
     {
     public:
+        struct AllocationCounter
+        {
+            std::uintmax_t existing { 0 };
+            std::uintmax_t created { 0 };
+            std::uintmax_t deleted { 0 };
+
+            std::uintmax_t resolve()
+            {
+                existing += created;
+                existing -= deleted;
+                created = 0;
+                deleted = 0;
+
+                return existing;
+            }
+        };
+
         static void add_to_gc(std::unique_ptr<Object> object);
-        
+
         template<typename T, typename ... Params>
         static Ref<T> create(Params ... values)
         {
@@ -32,27 +49,12 @@ namespace GC
         static void mark_objects(std::vector<Object*> roots);
         static void sweep();
         static void collect();
+
+        static AllocationCounter get_statistics();
         
     private:
         static std::forward_list<std::unique_ptr<Object>> used_list;
         static unsigned int current_mark;
-
-        struct AllocationCounter
-        {
-            std::uintmax_t existing { 0 };
-            std::uintmax_t created { 0 };
-            std::uintmax_t deleted { 0 };
-            
-            std::uintmax_t resolve()
-            {
-                existing += created;
-                existing -= deleted;
-                created = 0;
-                deleted = 0;
-                
-                return existing;
-            }
-        };
         static AllocationCounter counter;
     };
 }

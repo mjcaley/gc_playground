@@ -74,3 +74,8 @@ void GC::GC::collect()
     ++current_mark;
     counter.resolve();
 }
+
+GC::GC::AllocationCounter GC::GC::get_statistics()
+{
+    return counter;
+}
