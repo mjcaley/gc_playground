@@ -24,12 +24,14 @@ set(TEST_SOURCES
         test_valueobject.cpp
         test_weakref.cpp)
 
-add_executable(tests ${TEST_SOURCES})
+add_executable(${PROJECT_NAME} ${TEST_SOURCES})
 
-target_include_directories(tests PUBLIC ${GC_PLAYGROUND_INCLUDE})
-target_link_libraries(tests libgc_playground Catch)
+target_include_directories(${PROJECT_NAME} PUBLIC ${GC_PLAYGROUND_INCLUDE})
+target_link_libraries(${PROJECT_NAME} libgc_playground Catch)
 
-setup_target_for_coverage(NAME tests_coverage EXECUTABLE tests DEPENDENCIES tests)
+setup_target_for_coverage(NAME tests_coverage EXECUTABLE ${PROJECT_NAME} DEPENDENCIES ${PROJECT_NAME})
 
-enable_testing()
-add_test(NAME TestBase COMMAND tests)
+add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
+                  DEPENDS ${PROJECT_NAME})
+include(ParseAndAddCatchTests)
+ParseAndAddCatchTests(${PROJECT_NAME})
