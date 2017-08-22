@@ -32,4 +32,4 @@ target_link_libraries(tests libgc_playground Catch)
 setup_target_for_coverage(NAME tests_coverage EXECUTABLE tests DEPENDENCIES tests)
 
 enable_testing()
-add_test(NAME TestBase COMMAND gc_test)
+add_test(NAME TestBase COMMAND tests)
