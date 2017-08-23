@@ -2,13 +2,23 @@ language: cpp
 
 before_install: sudo apt-get -qq update
 
+install:
+    - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
+    - if [ "$CXX" = "clang++" ]; then export CXX="clang++-3.7" CC="clang-3.7"; fi
+
 compiler:
-  - clang-3.4
+  - clang
   - gcc
 
 addons:
   apt:
+    sources:
+      - llvm-toolchain-trusty
+      - ubuntu-toolchain-r-test
     packages:
+      - clang-3.4
+      - gcc-5
+      - g++-5
       - cmake3
       - lcov
 
