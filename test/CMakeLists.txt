@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
-project(tests)
+
+project(${TESTS})
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -24,14 +25,14 @@ set(TEST_SOURCES
         test_valueobject.cpp
         test_weakref.cpp)
 
-add_executable(${PROJECT_NAME} ${TEST_SOURCES})
+add_executable(${TESTS} ${TEST_SOURCES})
 
-target_include_directories(${PROJECT_NAME} PUBLIC ${GC_PLAYGROUND_INCLUDE})
-target_link_libraries(${PROJECT_NAME} libgc_playground Catch)
+target_include_directories(${TESTS} PUBLIC ${GC_PLAYGROUND_INCLUDE})
+target_link_libraries(${TESTS} ${LIBGC_PLAYGROUND} Catch)
 
-setup_target_for_coverage(NAME tests_coverage EXECUTABLE ${PROJECT_NAME} DEPENDENCIES ${PROJECT_NAME})
+setup_target_for_coverage(NAME coverage EXECUTABLE ${TESTS} DEPENDENCIES ${TESTS})
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
-                  DEPENDS ${PROJECT_NAME})
+                  DEPENDS ${TESTS})
 include(ParseAndAddCatchTests)
-ParseAndAddCatchTests(${PROJECT_NAME})
+ParseAndAddCatchTests(${TESTS})

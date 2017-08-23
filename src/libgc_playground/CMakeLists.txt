@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(libgc_playground)
+project(${LIBGC_PLAYGROUND})
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -14,5 +14,5 @@ set(GC_PLAYGROUND_SOURCES
         ${GC_PLAYGROUND_INCLUDE}/GC/WeakRef.hpp
         GC/GC.cpp)
 
-add_library(libgc_playground STATIC ${GC_PLAYGROUND_SOURCES})
-target_include_directories(libgc_playground PUBLIC ${GC_PLAYGROUND_INCLUDE})
+add_library(${LIBGC_PLAYGROUND} STATIC ${GC_PLAYGROUND_SOURCES})
+target_include_directories(${LIBGC_PLAYGROUND} PUBLIC ${GC_PLAYGROUND_INCLUDE})
