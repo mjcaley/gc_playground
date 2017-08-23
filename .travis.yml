@@ -1,4 +1,7 @@
 language: cpp
+
+before_install: sudo apt-get -qq update
+
 compiler:
   - clang
   - gcc
@@ -14,6 +17,7 @@ script:
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" ..
   - make tests coverage
+  - make test
 
 after_success:
     # Creating report
