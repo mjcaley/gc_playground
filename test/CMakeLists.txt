@@ -30,7 +30,9 @@ set(TEST_SOURCES
 add_executable(${TESTS} ${TEST_SOURCES})
 target_link_libraries(${TESTS} ${LIBGC_PLAYGROUND} Catch)
 
-setup_target_for_coverage(NAME coverage EXECUTABLE ${TESTS} DEPENDENCIES ${TESTS})
+setup_target_for_coverage(NAME coverage
+                          EXECUTABLE ${TESTS}
+                          DEPENDENCIES ${TESTS} ${LIBGC_PLAYGROUND})
 
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND}
                   DEPENDS ${TESTS} coverage)
