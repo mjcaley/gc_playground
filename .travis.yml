@@ -20,6 +20,7 @@ addons:
       - gcc-5
       - g++-5
       - cmake3
+      - gcov
       - lcov
 
 script:
