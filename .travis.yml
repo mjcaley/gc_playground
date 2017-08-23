@@ -9,7 +9,7 @@ compiler:
 addons:
   apt:
     packages:
-      - cmake
+      - cmake3
       - lcov
 
 script:
