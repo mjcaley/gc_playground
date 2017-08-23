@@ -118,7 +118,7 @@ script:
   - mkdir build
   - cd build
   - cmake -DCMAKE_BUILD_TYPE=Debug -G "Unix Makefiles" ..
-  - make tests coverage
+  - make tests
   - make test
 
 after_success:
