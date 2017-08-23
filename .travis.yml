@@ -3,7 +3,7 @@ language: cpp
 before_install: sudo apt-get -qq update
 
 compiler:
-  - clang
+  - clang-3.4
   - gcc
 
 addons:
