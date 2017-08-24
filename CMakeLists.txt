@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_CXX_STANDARD 14)
-
 set(GC_PLAYGROUND_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include/GC")
 set(CATCH_INCLUDE "${CMAKE_CURRENT_SOURCE_DIR}/include/Catch")
 
