@@ -30,7 +30,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.6
+            - llvm-toolchain-trusty
           packages:
             - cmake3
             - lcov
@@ -44,7 +44,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
+            - llvm-toolchain-trusty
           packages:
             - cmake3
             - lcov
@@ -58,7 +58,7 @@ matrix:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
+            - llvm-toolchain-trusty
           packages:
             - cmake3
             - lcov
