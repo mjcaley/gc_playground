@@ -1,4 +1,4 @@
-language: cpp
+language: generic
 
 # before_install: sudo apt-get -qq update
 # 
@@ -66,44 +66,44 @@ matrix:
       env:
         - MATRIX_EVAL="CC=clang-3.8 && CXX=clang++-3.8"
 
-    # works on Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-3.9
-          packages:
-            - cmake3
-            - lcov
-            - clang-3.9
-      env:
-        - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
+    # # works on Trusty
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - llvm-toolchain-trusty-3.9
+    #       packages:
+    #         - cmake3
+    #         - lcov
+    #         - clang-3.9
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-3.9 && CXX=clang++-3.9"
 
-    # works on Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-4.0
-          packages:
-            - cmake3
-            - lcov
-            - clang-4.0
-      env:
-        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+    # # works on Trusty
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - llvm-toolchain-trusty-4.0
+    #       packages:
+    #         - cmake3
+    #         - lcov
+    #         - clang-4.0
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
 
-    # works on Trusty
-    - os: linux
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-trusty-5.0
-          packages:
-            - cmake3
-            - lcov
-            - clang-5.0
-      env:
-        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+    # # works on Trusty
+    # - os: linux
+    #   addons:
+    #     apt:
+    #       sources:
+    #         - llvm-toolchain-trusty-5.0
+    #       packages:
+    #         - cmake3
+    #         - lcov
+    #         - clang-5.0
+    #   env:
+    #     - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
 
 before_install:
   - sudo apt-get -qq update
