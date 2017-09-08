@@ -131,6 +131,13 @@ int main(int argc, const char * argv[]) {
 
 
     auto array_ptr = GC::Ptr::create<int[]>(1,2,3,4,5);
+    auto array_ref = GC::Ref2<int[5]>(&array_ptr); // size must be specified
+    std::cout << "Array contents:";
+    for (auto& i : *array_ref)
+    {
+        std::cout << ' ' << i;
+    }
+    std::cout << std::endl;
 
     auto t_obj = GC::TypedObject<int>();
     auto ptr2 = GC::Ptr::create<int>(42);

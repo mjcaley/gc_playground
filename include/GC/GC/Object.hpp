@@ -73,7 +73,7 @@ namespace GC
     private:
         std::array<ArrayT, S> object;
 
-        friend Ref2<ArrayT>;
+        friend Ref2<ArrayT[]>;
     };
 
     struct Ptr
