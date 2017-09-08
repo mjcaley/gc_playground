@@ -63,47 +63,41 @@ namespace GC
         friend Ref2<T>;
     };
 
-//    template<typename T, std::size_t S>
-//    class ArrayObject : public Object2
-//    {
-//    public:
-//        template<typename ... Param>
-//        ArrayObject(std::size_t size, Param ... params) : object({ params ... }) {}
-//    private:
-//        std::array<T, S> object;
-//    };
-
-    template<typename T, std::size_t S> struct ArrayRef;
-    template<typename T, std::size_t S>
-    class ArrayObject : public Object2
+    template<typename ArrayT, std::size_t S>
+    class TypedObject<std::array<ArrayT, S>> : public Object2
     {
     public:
         template<typename ... Param>
-        ArrayObject(Param ... params) : object(std::array<typename std::remove_all_extents<T>::type, S> { params ... }) {}
-    private:
-        std::array<typename std::remove_all_extents<T>::type, S> object;
+        TypedObject(Param ... params) : object({params ... }) {}
 
-        friend ArrayRef<T, S>;
+    private:
+        std::array<ArrayT, S> object;
+
+        friend Ref2<ArrayT>;
     };
 
     struct Ptr
     {
         template<typename T, typename ... Param>
-        static Ptr create(std::function<void(unsigned int)> traverse, Param ... params)
+        static std::enable_if_t<!std::is_array<T>::value, Ptr>
+        create(std::function<void(unsigned int)> traverse, Param ... params)
         {
             return Ptr(std::make_unique<TypedObject<T>>(params ...), traverse);
         };
 
         template<typename T, typename ... Param>
-        static Ptr create(Param ... params)
+        static std::enable_if_t<!std::is_array<T>::value, Ptr>
+        create(Param ... params)
         {
             return Ptr(std::make_unique<TypedObject<T>>(params ...));
         };
 
-        template<typename T, std::size_t S, typename ... Param>
-        static std::enable_if_t<std::is_array<T>::value, Ptr> create(Param ... params)
+        template<typename T, typename ... Param>
+        static std::enable_if_t<std::is_array<T>::value, Ptr>
+        create(Param ... params)
         {
-            return Ptr(std::make_unique<ArrayObject<T, S>>(params ...));
+            auto ptr = Ptr(std::make_unique<TypedObject<std::array<std::remove_all_extents_t<T>, sizeof...(Param)> >>(params ...));
+            return ptr;
         }
 
         Object2* get_object() { return object.get(); }
