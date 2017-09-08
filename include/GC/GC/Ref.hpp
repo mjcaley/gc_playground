@@ -47,14 +47,26 @@ namespace GC {
         friend WeakRef<T>;
     };
 
+    struct RefBase
+    {
+        RefBase() = default;
+        RefBase(const RefBase& ref) : ptr(ref.ptr) { ptr->reference(); }
+        RefBase(Ptr *pointer) : ptr(pointer) { ptr->reference(); }
+        virtual ~RefBase() { ptr->dereference(); };
+
+    protected:
+        Ptr* ptr;
+    };
+
     template<typename T>
-    struct Ref2 {
+    struct Ref2 : public RefBase
+    {
+        Ref2(const Ref2& ref) : RefBase(ref) {}
+        Ref2(Ptr *pointer) : RefBase(pointer) {}
         template<typename ... Param>
         Ref2(Param... params) {
 
         }
-
-        Ref2(Ptr *pointer) : ptr(pointer) {}
 
         T &operator*() {
             auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
@@ -65,21 +77,18 @@ namespace GC {
             auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
             return &typed_obj->object;
         }
-
-    private:
-        Ptr *ptr;
     };
 
     template<typename T, std::size_t S>
-    struct Ref2<T[S]>
+    struct Ref2<T[S]> : public RefBase
     {
+        Ref2(const Ref2& ref) : RefBase(ref) {}
+        Ref2(Ptr *pointer) : RefBase(pointer) {}
         template<typename ... Param>
         Ref2(Param ... params)
         {
 
         }
-
-        Ref2(Ptr* pointer) : ptr(pointer) { std::cout << "Array Ref" << std::endl;}
 
         T& operator[](std::ptrdiff_t n)
         {
@@ -96,8 +105,5 @@ namespace GC {
             auto *typed_obj = static_cast<TypedObject<std::array<T, S>> *>(ptr->get_object());
             return &typed_obj->object;
         }
-
-    private:
-        Ptr *ptr;
     };
 }
