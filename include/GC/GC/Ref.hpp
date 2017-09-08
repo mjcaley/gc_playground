@@ -2,56 +2,58 @@
 
 #include <memory>
 
-#include "GC/GC.hpp"
-
+//#include "GC/GC.hpp"
+#include "GC/Collector.hpp"
 
 namespace GC {
-    template<typename T>
-    struct ValueObject;
-    template<typename T>
-    struct WeakRef;
+//    template<typename T>
+//    struct ValueObject;
+//    template<typename T>
+//    struct WeakRef;
+//
+//    template<typename T>
+//    struct Ref {
+//        template<typename ... Params>
+//        Ref(Params... values) {
+//            auto object = new_object<T>(values...);
+//            ptr = object.get();
+//            ptr->reference();
+//            GC::GC::add_to_gc(std::move(object));
+//        }
+//
+//        Ref(ValueObject<T> *ptr) : ptr(ptr) { ptr->reference(); }
+//
+//        Ref(const Ref<T> &ref) : ptr(ref.ptr) { ptr->reference(); }
+//
+//        ~Ref() { ptr->dereference(); }
+//
+//        operator WeakRef<T>() { return get_weak_reference(); }
+//
+//        WeakRef<T> get_weak_reference() const { return WeakRef<T>(ptr); }
+//
+//        T &operator*() {
+//            return *ptr->ptr;
+//        }
+//
+//        T *operator->() {
+//            return ptr->ptr.get();
+//        }
+//
+//        void mark(unsigned int new_mark) { ptr->mark(new_mark); }
+//
+//    private:
+//        ValueObject<T> *ptr;
+//
+//        friend WeakRef<T>;
+//    };
 
-    template<typename T>
-    struct Ref {
-        template<typename ... Params>
-        Ref(Params... values) {
-            auto object = new_object<T>(values...);
-            ptr = object.get();
-            ptr->reference();
-            GC::GC::add_to_gc(std::move(object));
-        }
-
-        Ref(ValueObject<T> *ptr) : ptr(ptr) { ptr->reference(); }
-
-        Ref(const Ref<T> &ref) : ptr(ref.ptr) { ptr->reference(); }
-
-        ~Ref() { ptr->dereference(); }
-
-        operator WeakRef<T>() { return get_weak_reference(); }
-
-        WeakRef<T> get_weak_reference() const { return WeakRef<T>(ptr); }
-
-        T &operator*() {
-            return *ptr->ptr;
-        }
-
-        T *operator->() {
-            return ptr->ptr.get();
-        }
-
-        void mark(unsigned int new_mark) { ptr->mark(new_mark); }
-
-    private:
-        ValueObject<T> *ptr;
-
-        friend WeakRef<T>;
-    };
+    struct Ptr;
 
     struct RefBase
     {
         RefBase() = default;
         RefBase(const RefBase& ref) : ptr(ref.ptr) { ptr->reference(); }
-        RefBase(Ptr *pointer) : ptr(pointer) { ptr->reference(); }
+        RefBase(Ptr* pointer) : ptr(pointer) { ptr->reference(); }
         virtual ~RefBase() { ptr->dereference(); };
 
     protected:
@@ -59,13 +61,15 @@ namespace GC {
     };
 
     template<typename T>
-    struct Ref2 : public RefBase
+    struct Ref : public RefBase
     {
-        Ref2(const Ref2& ref) : RefBase(ref) {}
-        Ref2(Ptr *pointer) : RefBase(pointer) {}
+        Ref(const Ref& ref) : RefBase(ref) {}
+        Ref(Ptr *pointer) : RefBase(pointer) {}
         template<typename ... Param>
-        Ref2(Param... params) {
-
+        Ref(Param... params) {
+            auto pointer = Ptr::create<T>(params ...);
+            pointer.reference();
+            ptr = add(pointer);
         }
 
         T &operator*() {
@@ -80,14 +84,16 @@ namespace GC {
     };
 
     template<typename T, std::size_t S>
-    struct Ref2<T[S]> : public RefBase
+    struct Ref<T[S]> : public RefBase
     {
-        Ref2(const Ref2& ref) : RefBase(ref) {}
-        Ref2(Ptr *pointer) : RefBase(pointer) {}
+        Ref(const Ref& ref) : RefBase(ref) {}
+        Ref(Ptr *pointer) : RefBase(pointer) {}
         template<typename ... Param>
-        Ref2(Param ... params)
+        Ref(Param ... params)
         {
-
+            auto pointer = Ptr::create<T[S]>(params ...);
+            pointer.reference();
+            ptr = add(pointer);
         }
 
         T& operator[](std::ptrdiff_t n)
