@@ -46,4 +46,55 @@ namespace GC
         
         friend WeakRef<T>;
     };
+
+    template<typename T>
+    struct Ref2
+    {
+        template<typename ... Param>
+        Ref2(Param... params)
+        {
+
+        }
+
+        Ref2(Ptr* pointer) : ptr(pointer) {}
+
+        T& operator*()
+        {
+            auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            return typed_obj->object;
+        }
+
+        T* operator->()
+        {
+            auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            return &typed_obj->object;
+        }
+
+    private:
+        Ptr* ptr;
+    };
+
+    template<typename T, std::size_t S>
+    struct ArrayRef
+    {
+        template<typename ... Param>
+        ArrayRef(Param ... params) {}
+
+        ArrayRef(Ptr* pointer) : ptr(pointer) {}
+
+        std::array<typename std::remove_all_extents<T>::type, S>& operator*()
+        {
+            auto* typed_obj = static_cast<ArrayObject<T, S>*>(ptr->get_object());
+            return typed_obj->object;
+        };
+
+        std::array<typename std::remove_all_extents<T>::type, S>* operator->()
+        {
+            auto* typed_obj = static_cast<ArrayObject<T, S>*>(ptr->get_object());
+            return &typed_obj;
+        };
+
+    private:
+        Ptr* ptr;
+    };
 }

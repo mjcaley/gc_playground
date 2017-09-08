@@ -127,5 +127,36 @@ int main(int argc, const char * argv[]) {
 
     test_gc3();
 
+
+
+
+    auto array_ptr = GC::Ptr::create<int[], 5>(1,2,3,4,5);
+    auto array_ref = GC::ArrayRef<int[], 5>(&array_ptr);
+
+    std::cout << "array values: ";
+    for (auto& i : *array_ref)
+    {
+        std::cout << i;
+    }
+    std::cout << std::endl;
+
+    auto t_obj = GC::TypedObject<int>();
+    auto ptr2 = GC::Ptr::create<int>(42);
+//    auto array_ptr = GC::Ptr::create<int[]>(5);
+
+    auto ref = GC::Ref2<int>(&ptr2);
+    std::cout << "Ref2's value: " << *ref << std::endl;
+
+    struct Nums
+    {
+        int first { 1 };
+        int second { 2 };
+    };
+    auto ptr3 = GC::Ptr::create<Nums>();
+    auto ref2 = GC::Ref2<Nums>(&ptr3);
+    ref2->first = 42;
+    ref2->second = 32;
+    std::cout << "Ref2's values: " << ref2->first << " " << ref2->second << std::endl;
+
     return 0;
 }
