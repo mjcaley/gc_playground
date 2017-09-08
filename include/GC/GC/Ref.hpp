@@ -69,4 +69,35 @@ namespace GC {
     private:
         Ptr *ptr;
     };
+
+    template<typename T, std::size_t S>
+    struct Ref2<T[S]>
+    {
+        template<typename ... Param>
+        Ref2(Param ... params)
+        {
+
+        }
+
+        Ref2(Ptr* pointer) : ptr(pointer) { std::cout << "Array Ref" << std::endl;}
+
+        T& operator[](std::ptrdiff_t n)
+        {
+            auto* typed_obj = static_cast<TypedObject<std::array<T, S>>*>(ptr->get_object());
+            return typed_obj->object[n];
+        }
+
+        std::array<T, S>& operator*() {
+            auto *typed_obj = static_cast<TypedObject<std::array<T, S>> *>(ptr->get_object());
+            return typed_obj->object;
+        }
+
+        std::array<T, S>* operator->() {
+            auto *typed_obj = static_cast<TypedObject<std::array<T, S>> *>(ptr->get_object());
+            return &typed_obj->object;
+        }
+
+    private:
+        Ptr *ptr;
+    };
 }

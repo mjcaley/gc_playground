@@ -63,17 +63,17 @@ namespace GC
         friend Ref2<T>;
     };
 
-    template<typename ArrayT, std::size_t S>
-    class TypedObject<std::array<ArrayT, S>> : public Object2
+    template<typename T, std::size_t S>
+    class TypedObject<std::array<T, S>> : public Object2
     {
     public:
         template<typename ... Param>
         TypedObject(Param ... params) : object({params ... }) {}
 
     private:
-        std::array<ArrayT, S> object;
+        std::array<T, S> object;
 
-        friend Ref2<ArrayT[]>;
+        friend Ref2<T[S]>;
     };
 
     struct Ptr
@@ -96,7 +96,9 @@ namespace GC
         static std::enable_if_t<std::is_array<T>::value, Ptr>
         create(Param ... params)
         {
-            auto ptr = Ptr(std::make_unique<TypedObject<std::array<std::remove_all_extents_t<T>, sizeof...(Param)> >>(params ...));
+            auto ptr = Ptr(std::make_unique<
+                    TypedObject< std::array<std::remove_all_extents_t<T>, sizeof...(Param)>> >
+                                   (params ...));
             return ptr;
         }
 
