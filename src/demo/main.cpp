@@ -5,9 +5,9 @@
 #include <memory>
 #include <vector>
 
-#include "GC/All.hpp"
-#include "GC/Ref.hpp"
-
+// #include "GC/All.hpp"
+// #include "GC/Ref.hpp"
+#include "GC/GC.hpp"
 
 using GC::Ref;
 
