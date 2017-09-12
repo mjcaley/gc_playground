@@ -4,37 +4,77 @@
 #include <memory>
 
 
-namespace GC {
+namespace GC
+{
+    namespace Detail
+    {
+        template<typename T, std::size_t Rank>
+        struct c2cpp_array
+        {
+            using type = typename std::array<typename c2cpp_array<std::remove_extent_t<T>, Rank - 1>::type, std::extent<T>::value>;
+        };
+        
+        template<typename T>
+        struct c2cpp_array<T, 1>
+        {
+            using type = typename std::array<std::remove_extent_t<T>, std::extent<T>::value>;
+        };
+        
+        template<typename T>
+        using make_array_t = typename c2cpp_array<T, std::rank<T>::value>::type;
+    }
+
     struct Object {
         virtual ~Object() = default;
     };
 
-    template<typename T>
+    template<typename T, bool IsArray>
     struct Ref;
 
+    template<typename T, bool IsArray = std::is_array<T>::value>
+    class TypedObject : public Object {};
+
     template<typename T>
-    class TypedObject : public Object {
+    class TypedObject<T, false> : public Object
+    {
     public:
+        using type = T;
+
         template<typename ... Param>
         TypedObject(Param ... params) : object(T(params ...)) {}
 
     private:
         T object;
 
-        friend Ref<T>;
+        friend Ref<T, false>;
     };
 
-    template<typename T, std::size_t S>
-    class TypedObject<std::array<T, S>> : public Object {
+    template<typename T>
+    class TypedObject<T, true> : public Object
+    {
     public:
+        using type = Detail::make_array_t<T>;
+
         template<typename ... Param>
-        TypedObject(Param ... params) : object({params ...}) {}
+        TypedObject(Param ... params) : object({ params ... }) {}
 
     private:
-        std::array<T, S> object;
+        Detail::make_array_t<T> object;
 
-        friend Ref<T[S]>;
+        friend Ref<T, true>;
     };
+
+    // template<typename T, std::size_t S>
+    // class TypedArrayObject<T, S> : public Object {
+    // public:
+    //     template<typename ... Param>
+    //     TypedArrayObject(Param ... params) : object({params ...}) {}
+
+    // private:
+    //     std::array<T, S> object;
+
+    //     friend Ref<T, S>;
+    // };
 
     struct Ptr {
         Ptr(Ptr& pointer) : object(std::move(pointer.object)),
@@ -60,12 +100,11 @@ namespace GC {
             return Ptr(std::make_unique<TypedObject<T>>(params ...));
         };
 
-        template<typename T, typename ... Param>
+        template<typename T, std::size_t ... S, typename ... Param>
         static std::enable_if_t<std::is_array<T>::value, Ptr>
         create(Param ... params) {
             return Ptr(std::make_unique<
-                    TypedObject<std::array<std::remove_all_extents_t<T>, sizeof...(Param)>>>
-                                   (params ...));
+                    TypedObject<T>>(params ...));
         }
 
         Object *get_object() { return object.get(); }
