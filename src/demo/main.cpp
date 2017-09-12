@@ -136,6 +136,8 @@ int main(int argc, const char * argv[]) {
     }
     std::cout << std::endl;
 
+    auto mai = GC::Ref<int[2][2]>();
+
     struct Nums
     {
         int first { 1 };

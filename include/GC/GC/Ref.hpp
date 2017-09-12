@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <type_traits>
 
 //#include "GC/GC.hpp"
 #include "GC/Collector.hpp"
@@ -60,8 +61,11 @@ namespace GC {
         Ptr* ptr;
     };
 
+    template<typename T, bool IsArray = std::is_array<T>::value>
+    struct Ref {};
+
     template<typename T>
-    struct Ref : public RefBase
+    struct Ref<T, false> : public RefBase
     {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}
@@ -83,32 +87,32 @@ namespace GC {
         }
     };
 
-    template<typename T, std::size_t S>
-    struct Ref<T[S]> : public RefBase
+    template<typename T>
+    struct Ref<T, true> : public RefBase
     {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}
         template<typename ... Param>
         Ref(Param ... params)
         {
-            auto pointer = Ptr::create<T[S]>(params ...);
+            auto pointer = Ptr::create<T>(params ...);
             pointer.reference();
             ptr = add(pointer);
         }
 
-        T& operator[](std::ptrdiff_t n)
+        std::remove_extent_t<T>& operator[](std::ptrdiff_t n)
         {
-            auto* typed_obj = static_cast<TypedObject<std::array<T, S>>*>(ptr->get_object());
+            auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
             return typed_obj->object[n];
         }
 
-        std::array<T, S>& operator*() {
-            auto *typed_obj = static_cast<TypedObject<std::array<T, S>> *>(ptr->get_object());
+        T& operator*() {
+            auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
             return typed_obj->object;
         }
 
-        std::array<T, S>* operator->() {
-            auto *typed_obj = static_cast<TypedObject<std::array<T, S>> *>(ptr->get_object());
+        T* operator->() {
+            auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
             return &typed_obj->object;
         }
     };
