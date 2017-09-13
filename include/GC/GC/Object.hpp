@@ -19,7 +19,7 @@ namespace GC
     class TypedObject : public Object {};
 
     template<typename T>
-    class TypedObject<T, typename std::enable_if_t<!std::is_array<T>::value>> : public Object
+    class TypedObject<T, std::enable_if_t<!std::is_array<T>::value>> : public Object
     {
     public:
         using type = T;
