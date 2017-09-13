@@ -47,13 +47,21 @@ namespace GC
 
         void reference() { ++ref_count; }
 
-        void dereference() { --ref_count; }
+        void dereference()
+        {
+            --ref_count;
+            free();
+        }
 
         unsigned int get_weak_ref_count() const { return weak_ref_count; }
 
         void reference_weak() { ++weak_ref_count; }
 
-        void dereference_weak() { --weak_ref_count; }
+        void dereference_weak()
+        {
+            --weak_ref_count;
+            free();
+        }
 
         void mark(unsigned int current_mark)
         {
@@ -83,5 +91,14 @@ namespace GC
         Ptr(std::unique_ptr<Object> object) : Ptr(std::move(object), nullptr) {}
 
         Ptr() : Ptr(nullptr, nullptr) {}
+
+        void free()
+        {
+            if (ref_count == 0 && weak_ref_count == 0)
+            {
+                traverse_func = nullptr;
+                object.reset();
+            }
+        }
     };
 }
