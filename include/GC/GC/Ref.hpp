@@ -5,6 +5,7 @@
 
 //#include "GC/GC.hpp"
 #include "GC/Collector.hpp"
+#include "GC/construct_array.hpp"
 
 namespace GC {
 //    template<typename T>
@@ -100,7 +101,7 @@ namespace GC {
             ptr = add(pointer);
         }
 
-        std::remove_extent_t<T>& operator[](std::ptrdiff_t n)
+        construct_array_t<std::remove_extent_t<T>>& operator[](std::ptrdiff_t n)
         {
             auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
             return typed_obj->object.at(n);

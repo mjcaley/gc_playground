@@ -17,4 +17,10 @@ struct construct_array<T, 1>
 };
 
 template<typename T>
+struct construct_array<T, 0>
+{
+    using type = typename std::remove_extent_t<T>;
+};
+
+template<typename T>
 using construct_array_t = typename construct_array<T, std::rank<T>::value>::type;
