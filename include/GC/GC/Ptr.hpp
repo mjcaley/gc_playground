@@ -3,39 +3,30 @@
 #include <functional>
 #include <memory>
 
+#include "GC/construct_array.hpp"
+#include "GC/Ref.hpp"
+
 
 namespace GC
 {
-    namespace Detail
-    {
-        template<typename T, std::size_t Rank>
-        struct c2cpp_array
-        {
-            using type = typename std::array<typename c2cpp_array<std::remove_extent_t<T>, Rank - 1>::type, std::extent<T>::value>;
-        };
-        
-        template<typename T>
-        struct c2cpp_array<T, 1>
-        {
-            using type = typename std::array<std::remove_extent_t<T>, std::extent<T>::value>;
-        };
-        
-        template<typename T>
-        using make_array_t = typename c2cpp_array<T, std::rank<T>::value>::type;
-    }
+    template<typename T, typename Enable>
+    struct Ref;
+
+    // template<typename T>
+    // struct Ref<T, std::enable_if_t<!std::is_array<T>::result>>;
+
+    // template<typename T>
+    // struct Ref<T, std::enable_if_t<std::is_array<T>::result>>;
 
     struct Object {
         virtual ~Object() = default;
     };
 
-    template<typename T, bool IsArray>
-    struct Ref;
-
-    template<typename T, bool IsArray = std::is_array<T>::value>
+    template<typename T, typename Enable = void>
     class TypedObject : public Object {};
 
     template<typename T>
-    class TypedObject<T, false> : public Object
+    class TypedObject<T, typename std::enable_if_t<!std::is_array<T>::value>> : public Object
     {
     public:
         using type = T;
@@ -46,22 +37,22 @@ namespace GC
     private:
         T object;
 
-        friend Ref<T, false>;
+        friend Ref<T, typename std::enable_if_t<!std::is_array<T>::value>>;
     };
 
     template<typename T>
-    class TypedObject<T, true> : public Object
+    class TypedObject<T, std::enable_if_t<std::is_array<T>::value>> : public Object
     {
     public:
-        using type = Detail::make_array_t<T>;
+        using type = construct_array_t<T>;
 
         template<typename ... Param>
         TypedObject(Param ... params) : object({ params ... }) {}
 
     private:
-        Detail::make_array_t<T> object;
+        construct_array_t<T> object;
 
-        friend Ref<T, true>;
+        friend Ref<T, std::enable_if_t<std::is_array<T>::value>>;
     };
 
     struct Ptr {
@@ -77,23 +68,16 @@ namespace GC
                              weak_ref_count(pointer.weak_ref_count) {}
 
         template<typename T, typename ... Param>
-        static std::enable_if_t<!std::is_array<T>::value, Ptr>
+        static Ptr
         create(std::function<void(unsigned int)> traverse, Param ... params) {
             return Ptr(std::make_unique<TypedObject<T>>(params ...), traverse);
         };
 
         template<typename T, typename ... Param>
-        static std::enable_if_t<!std::is_array<T>::value, Ptr>
+        static Ptr
         create(Param ... params) {
             return Ptr(std::make_unique<TypedObject<T>>(params ...));
         };
-
-        template<typename T, std::size_t ... S, typename ... Param>
-        static std::enable_if_t<std::is_array<T>::value, Ptr>
-        create(Param ... params) {
-            return Ptr(std::make_unique<
-                    TypedObject<T>>(params ...));
-        }
 
         Object *get_object() { return object.get(); }
 

@@ -61,11 +61,11 @@ namespace GC {
         Ptr* ptr;
     };
 
-    template<typename T, bool IsArray = std::is_array<T>::value>
-    struct Ref {};
+    template<typename T, typename Enable = void>
+    struct Ref;
 
     template<typename T>
-    struct Ref<T, false> : public RefBase
+    struct Ref<T, std::enable_if_t<!std::is_array<T>::value>> : public RefBase
     {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}
@@ -88,7 +88,7 @@ namespace GC {
     };
 
     template<typename T>
-    struct Ref<T, true> : public RefBase
+    struct Ref<T, std::enable_if_t<std::is_array<T>::value>> : public RefBase
     {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}

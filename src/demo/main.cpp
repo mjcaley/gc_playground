@@ -126,7 +126,7 @@ int main(int argc, const char * argv[]) {
 //    test_gc3();
 
 
-    auto i = GC::Ref<int>(42);
+    auto i = Ref<int>(42);
     std::cout << "Integer " << *i << std::endl;
 
     auto ai = GC::Ref<int[5]>(1,2,3,4,5);
