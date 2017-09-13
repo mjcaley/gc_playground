@@ -2,59 +2,15 @@
 
 #include <functional>
 #include <memory>
+#include <type_traits>
 
 #include "GC/construct_array.hpp"
+#include "GC/Object.hpp"
 #include "GC/Ref.hpp"
 
 
 namespace GC
 {
-    template<typename T, typename Enable>
-    struct Ref;
-
-    // template<typename T>
-    // struct Ref<T, std::enable_if_t<!std::is_array<T>::result>>;
-
-    // template<typename T>
-    // struct Ref<T, std::enable_if_t<std::is_array<T>::result>>;
-
-    struct Object {
-        virtual ~Object() = default;
-    };
-
-    template<typename T, typename Enable = void>
-    class TypedObject : public Object {};
-
-    template<typename T>
-    class TypedObject<T, typename std::enable_if_t<!std::is_array<T>::value>> : public Object
-    {
-    public:
-        using type = T;
-
-        template<typename ... Param>
-        TypedObject(Param ... params) : object(T(params ...)) {}
-
-    private:
-        T object;
-
-        friend Ref<T, typename std::enable_if_t<!std::is_array<T>::value>>;
-    };
-
-    template<typename T>
-    class TypedObject<T, std::enable_if_t<std::is_array<T>::value>> : public Object
-    {
-    public:
-        using type = construct_array_t<T>;
-
-        template<typename ... Param>
-        TypedObject(Param ... params) : object({ params ... }) {}
-
-    private:
-        construct_array_t<T> object;
-
-        friend Ref<T, std::enable_if_t<std::is_array<T>::value>>;
-    };
-
     struct Ptr {
         Ptr(Ptr& pointer) : object(std::move(pointer.object)),
                             traverse_func(pointer.traverse_func),
@@ -68,18 +24,18 @@ namespace GC
                              weak_ref_count(pointer.weak_ref_count) {}
 
         template<typename T, typename ... Param>
-        static Ptr
-        create(std::function<void(unsigned int)> traverse, Param ... params) {
+        static Ptr create(std::function<void(unsigned int)> traverse, Param ... params)
+        {
             return Ptr(std::make_unique<TypedObject<T>>(params ...), traverse);
         };
 
         template<typename T, typename ... Param>
-        static Ptr
-        create(Param ... params) {
+        static Ptr create(Param ... params)
+        {
             return Ptr(std::make_unique<TypedObject<T>>(params ...));
         };
 
-        Object *get_object() { return object.get(); }
+        Object* get_object() { return object.get(); }
 
         unsigned int get_mark() const { return mark_count; }
 
@@ -99,7 +55,8 @@ namespace GC
 
         void dereference_weak() { --weak_ref_count; }
 
-        void mark(unsigned int current_mark) {
+        void mark(unsigned int current_mark)
+        {
             if (current_mark != mark_count) {
                 mark_count = current_mark;
                 if (traverse_func) {

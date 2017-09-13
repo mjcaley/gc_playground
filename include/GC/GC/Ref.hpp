@@ -103,7 +103,7 @@ namespace GC {
         std::remove_extent_t<T>& operator[](std::ptrdiff_t n)
         {
             auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
-            return typed_obj->object[n];
+            return typed_obj->object.at(n);
         }
 
         T& operator*() {

@@ -9,6 +9,7 @@
 
 #include "GC/Ref.hpp"
 #include "GC/Collector.hpp"
+#include "GC/Object.hpp"
 #include "GC/Ptr.hpp"
 
 namespace GC
