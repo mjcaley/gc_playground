@@ -71,19 +71,22 @@ namespace GC {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}
         template<typename ... Param>
-        Ref(Param... params) {
+        Ref(Param... params)
+        {
             auto pointer = Ptr::create<T>(params ...);
             pointer.reference();
             ptr = add(pointer);
         }
 
-        T &operator*() {
-            auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
+        T &operator*()
+        {
+            auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
             return typed_obj->object;
         }
 
-        T *operator->() {
-            auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
+        T *operator->()
+        {
+            auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
             return &typed_obj->object;
         }
     };
@@ -102,6 +105,12 @@ namespace GC {
         }
 
         construct_array_t<std::remove_extent_t<T>>& operator[](std::ptrdiff_t n)
+        {
+            auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            return typed_obj->object[n];
+        }
+
+        construct_array_t<std::remove_extent_t<T>>& at(std::ptrdiff_t n)
         {
             auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
             return typed_obj->object.at(n);
