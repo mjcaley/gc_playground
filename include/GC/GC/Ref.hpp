@@ -9,8 +9,8 @@
 namespace GC 
 {
     struct Ptr;
-
     template<typename T, typename Enable> class TypedObject;
+    template<typename T> struct WeakRef;
 
     struct RefBase
     {
@@ -31,6 +31,7 @@ namespace GC
     {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}
+        Ref(const WeakRef<T>& ref) : RefBase(ref.ptr) { ptr->reference(); }
         template<typename ... Param>
         Ref(Param... params)
         {
@@ -50,6 +51,9 @@ namespace GC
             auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
             return &typed_obj->object;
         }
+
+    private:
+        friend WeakRef<T>;
     };
 
     template<typename T>
@@ -57,6 +61,7 @@ namespace GC
     {
         Ref(const Ref& ref) : RefBase(ref) {}
         Ref(Ptr *pointer) : RefBase(pointer) {}
+        Ref(const WeakRef<T>& ref) : RefBase(ref.ptr) { ptr->reference(); }
         template<typename ... Param>
         Ref(Param ... params)
         {
@@ -86,5 +91,8 @@ namespace GC
             auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
             return &typed_obj->object;
         }
+        
+    private:
+        friend WeakRef<T>;
     };
 }
