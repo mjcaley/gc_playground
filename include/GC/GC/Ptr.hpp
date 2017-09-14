@@ -6,11 +6,14 @@
 
 #include "GC/construct_array.hpp"
 #include "GC/Object.hpp"
-#include "GC/Ref.hpp"
+// #include "GC/Ref.hpp"
+#include "GC/Traverse.hpp"
 
 
 namespace GC
 {
+    template<typename T, typename Enable> struct Ref;
+
     struct Ptr {
         Ptr(Ptr& pointer) : object(std::move(pointer.object)),
                             traverse_func(pointer.traverse_func),
@@ -32,7 +35,14 @@ namespace GC
         template<typename T, typename ... Param>
         static Ptr create(Param ... params)
         {
-            return Ptr(std::make_unique<TypedObject<T>>(params ...));
+            auto typed_obj = std::make_unique<TypedObject<T>>(params ...);
+            auto* raw_obj = typed_obj.get();
+            // auto traversal = std::bind(traverse<T>, raw_obj->object, std::placeholders::_1);
+            auto traversal = [raw_obj](unsigned int marker) { traverse<T>(raw_obj->object, marker); };
+
+            auto ptr = Ptr(std::move(typed_obj), traversal);
+            
+            return ptr;
         };
 
         Object* get_object() { return object.get(); }

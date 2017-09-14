@@ -2,14 +2,14 @@
 
 #include <type_traits>
 
+// #include "GC/RefFwd.hpp"
 
-template<typename T>
-void traverse(T* object, unsigned int current_mark) {}
 
 namespace GC
 {
-    template<typename T, typename Enable>
-    struct Ref;
+    class Ptr;
+
+    template<typename T, typename Enable> struct Ref;
 
     struct Object {
         virtual ~Object() = default;
@@ -30,6 +30,7 @@ namespace GC
     private:
         T object;
 
+        friend Ptr;
         friend Ref<T, typename std::enable_if_t<!std::is_array<T>::value>>;
     };
 
@@ -45,6 +46,7 @@ namespace GC
     private:
         construct_array_t<T> object;
 
+        friend Ptr;
         friend Ref<T, std::enable_if_t<std::is_array<T>::value>>;
     };
 }
