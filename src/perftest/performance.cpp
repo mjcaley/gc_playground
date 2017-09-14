@@ -7,7 +7,7 @@
 #include <numeric>
 #include <random>
 
-#include "GC/All.hpp"
+#include "GC/GC.hpp"
 
 
 using GC::Ref;
@@ -70,7 +70,7 @@ void time()
         
         auto gc_start = clock.now();
         time_gc(values);
-        GC::GC::collect();
+        GC::collect();
         auto gc_stop = clock.now();
         std::chrono::duration<double> gc_diff = gc_stop - gc_start;
         gc_results.emplace_back(gc_diff.count());
