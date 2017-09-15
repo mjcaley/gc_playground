@@ -5,3 +5,4 @@
 #include "GC/Object.hpp"
 #include "GC/Ptr.hpp"
 #include "GC/WeakRef.hpp"
+#include "GC/RefTraverse.hpp"

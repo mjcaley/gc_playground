@@ -25,11 +25,4 @@ namespace GC {
     private:
         friend Ref<T>;
     };
-
-    template<typename T>
-    void traverse(WeakRef<T>& object, unsigned int marker)
-    {
-        auto ref = Ref<T>(object);
-        ref.ptr->mark(marker);
-    }
 }

@@ -95,10 +95,4 @@ namespace GC
     private:
         friend WeakRef<T>;
     };
-
-    template<typename T>
-    void traverse(Ref<T>& object, unsigned int marker)
-    {
-        object.ptr->mark(marker);
-    }
 }

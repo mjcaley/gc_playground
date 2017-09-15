@@ -8,7 +8,7 @@ enable_testing()
 
 # GC Playground library
 set(LIBGC_PLAYGROUND libgc_playground)
-add_subdirectory(src/libgc_playground)
+add_subdirectory(include/GC)
 
 # Demo program
 set(DEMO demo)
