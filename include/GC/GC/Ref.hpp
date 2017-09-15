@@ -35,7 +35,7 @@ namespace GC
         template<typename ... Param>
         Ref(Param... params)
         {
-            auto pointer = Ptr::create<T>(params ...);
+            auto pointer = Ptr::create<T>(std::forward<Param>(params) ...);
             pointer.reference();
             ptr = add(pointer);
         }
@@ -66,7 +66,7 @@ namespace GC
         template<typename ... Param>
         Ref(Param ... params)
         {
-            auto pointer = Ptr::create<T>(params ...);
+            auto pointer = Ptr::create<T>(std::forward<Param>(params) ...);
             pointer.reference();
             ptr = add(pointer);
         }

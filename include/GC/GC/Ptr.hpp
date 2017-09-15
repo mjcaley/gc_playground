@@ -28,13 +28,13 @@ namespace GC
         template<typename T, typename ... Param>
         static Ptr create(std::function<void(unsigned int)> traverse, Param ... params)
         {
-            return Ptr(std::make_unique<TypedObject<T>>(params ...), traverse);
+            return Ptr(std::make_unique<TypedObject<T>>(std::forward<Param>(params) ...), traverse);
         };
 
         template<typename T, typename ... Param>
         static Ptr create(Param ... params)
         {
-            auto typed_obj = std::make_unique<TypedObject<T>>(params ...);
+            auto typed_obj = std::make_unique<TypedObject<T>>(std::forward<Param>(params) ...);
             auto* raw_obj = typed_obj.get();
             auto traversal = [raw_obj](unsigned int marker) { traverse<T>(raw_obj->object, marker); };
 
