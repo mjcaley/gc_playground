@@ -8,8 +8,6 @@
 
 namespace GC 
 {
-    // struct Ptr;
-    // template<typename T, typename Enable> class TypedObject;
     template<typename T> struct WeakRef;
 
     struct RefBase
@@ -18,6 +16,8 @@ namespace GC
         RefBase(const RefBase& ref) : ptr(ref.ptr) { ptr->reference(); }
         RefBase(Ptr* pointer) : ptr(pointer) { ptr->reference(); }
         virtual ~RefBase() { ptr->dereference(); };
+
+        Ptr* get() { return ptr; }
 
     protected:
         Ptr* ptr;
@@ -54,6 +54,7 @@ namespace GC
 
     private:
         friend WeakRef<T>;
+        friend void traverse<T>(T&, unsigned int);
     };
 
     template<typename T>

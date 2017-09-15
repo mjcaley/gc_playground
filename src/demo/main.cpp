@@ -8,11 +8,27 @@
 #include "GC/GC.hpp"
 
 using GC::Ref;
+using GC::WeakRef;
 
 
 void test_gc()
 {
     auto r = Ref<int>(42);
+}
+
+
+struct Reffer
+{
+    WeakRef<int> value { Ref<int>(42) };
+
+    friend void GC::traverse<Reffer>(Reffer&, unsigned int);
+};
+
+template<>
+void GC::traverse<Reffer>(Reffer& object, unsigned int marker)
+{
+    auto value_ref = Ref<int>(object.value);
+    traverse(value_ref, marker);
 }
 
 int main(int argc, const char * argv[]) {
@@ -31,6 +47,8 @@ int main(int argc, const char * argv[]) {
     }
     std::cout << std::endl;
 
+    GC::collect();
+
     auto mai = GC::Ref<int[2][2]>();
 
     struct Nums
@@ -40,6 +58,9 @@ int main(int argc, const char * argv[]) {
     };
     auto n = GC::Ref<Nums>();
     std::cout << "Num { first: " << n->first << ", second: " << n->second << " }" << std::endl;
+
+    Ref<Reffer> reffer;
+    GC::collect();
 
     return 0;
 }
