@@ -2,14 +2,9 @@
 
 #include <array>
 
-// #include "GC/RefFwd.hpp"
-
 
 namespace GC
 {
-    // template<typename T, typename Enable> struct Ref;
-    template<typename T> struct WeakRef;
-
     template<typename T> void traverse_container(T& object, unsigned int marker);
     
     template<typename T>
@@ -32,7 +27,6 @@ namespace GC
     {
         traverse_container(object, marker);
     }
-
 
     template<typename T>
     void traverse_container(T& object, unsigned int marker)

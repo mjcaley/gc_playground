@@ -8,8 +8,8 @@
 
 namespace GC 
 {
-    struct Ptr;
-    template<typename T, typename Enable> class TypedObject;
+    // struct Ptr;
+    // template<typename T, typename Enable> class TypedObject;
     template<typename T> struct WeakRef;
 
     struct RefBase
@@ -95,4 +95,10 @@ namespace GC
     private:
         friend WeakRef<T>;
     };
+
+    template<typename T>
+    void traverse(Ref<T>& object, unsigned int marker)
+    {
+        object.ptr->mark(marker);
+    }
 }
