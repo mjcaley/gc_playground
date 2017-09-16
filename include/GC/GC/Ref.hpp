@@ -10,90 +10,91 @@ namespace GC
 {
     template<typename T> struct WeakRef;
 
+    template<typename T>
     struct RefBase
     {
         RefBase() = default;
         RefBase(const RefBase& ref) : ptr(ref.ptr) { ptr->reference(); }
         RefBase(Ptr* pointer) : ptr(pointer) { ptr->reference(); }
+        RefBase(const WeakRef<T>& ref) : ptr(ref.ptr) { ptr->reference(); }
         virtual ~RefBase() { ptr->dereference(); };
 
         Ptr* get() { return ptr; }
 
+        T& operator*()
+        {
+            auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            return typed_obj->object;
+        }
+
+        T* operator->()
+        {
+            auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            return &typed_obj->object;
+        }
+
     protected:
         Ptr* ptr;
+
+        friend WeakRef<T>;
     };
 
     template<typename T, typename Enable = void>
-    struct Ref;
-
-    template<typename T>
-    struct Ref<T, std::enable_if_t<!std::is_array<T>::value>> : public RefBase
+    struct Ref : public RefBase<T>
     {
-        Ref(const Ref& ref) : RefBase(ref) {}
-        Ref(Ptr *pointer) : RefBase(pointer) {}
-        Ref(const WeakRef<T>& ref) : RefBase(ref.ptr) { ptr->reference(); }
+        Ref(const Ref& ref) : RefBase<T>(ref) {}
+        Ref(Ptr *pointer) : RefBase<T>(pointer) {}
+        Ref(const WeakRef<T>& ref) : RefBase<T>(ref.ptr) {}
         template<typename ... Param>
         Ref(Param... params)
         {
             auto pointer = Ptr::create<T>(std::forward<Param>(params) ...);
             pointer.reference();
-            ptr = add(pointer);
-        }
-
-        T &operator*()
-        {
-            auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
-            return typed_obj->object;
-        }
-
-        T *operator->()
-        {
-            auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
-            return &typed_obj->object;
+            this->ptr = add(pointer);
         }
 
     private:
         friend WeakRef<T>;
-        friend void traverse<T>(T&, unsigned int);
+        friend void traverse<Ref<T>>(Ref<T>&, unsigned int);
     };
 
     template<typename T>
-    struct Ref<T, std::enable_if_t<std::is_array<T>::value>> : public RefBase
+    struct Ref<T, std::enable_if_t<std::is_array<T>::value>> : public RefBase<T>
     {
-        Ref(const Ref& ref) : RefBase(ref) {}
-        Ref(Ptr *pointer) : RefBase(pointer) {}
-        Ref(const WeakRef<T>& ref) : RefBase(ref.ptr) { ptr->reference(); }
-        template<typename ... Param>
-        Ref(Param ... params)
+        using type = construct_array_t<T>;
+        using child_type = construct_array_t<std::remove_extent_t<T>>;
+
+        Ref(const Ref& ref) : RefBase<T>(ref) {}
+        Ref(Ptr *pointer) : RefBase<T>(pointer) {}
+        Ref(const WeakRef<T>& ref) : RefBase<T>(ref.ptr) {}>
+        Ref()
         {
-            auto pointer = Ptr::create<T>(std::forward<Param>(params) ...);
+            auto pointer = Ptr::create<T>();
             pointer.reference();
-            ptr = add(pointer);
+            this->ptr = add(pointer);
         }
 
         construct_array_t<std::remove_extent_t<T>>& operator[](std::ptrdiff_t n)
         {
-            auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
             return typed_obj->object[n];
         }
 
         construct_array_t<std::remove_extent_t<T>>& at(std::ptrdiff_t n)
         {
-            auto* typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());
+            auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
             return typed_obj->object.at(n);
         }
 
-        T& operator*() {
-            auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
-            return typed_obj->object;
-        }
-
-        T* operator->() {
-            auto *typed_obj = static_cast<TypedObject<T> *>(ptr->get_object());
-            return &typed_obj->object;
+        construct_array_t<T>& operator=(const std::initializer_list<std::remove_extent_t<T>>& b)
+        {
+            // auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
+            auto* typed_obj = static_cast<TypedObject<construct_array_t<T>>*>(this->ptr->get_object());
+            return typed_obj->object = b;
         }
         
     private:
         friend WeakRef<T>;
+        friend void traverse<Ref<T>>(Ref<T>&, unsigned int);
     };
 }

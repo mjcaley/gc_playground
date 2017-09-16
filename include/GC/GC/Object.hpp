@@ -29,7 +29,10 @@ namespace GC
         using type = construct_array_t<T>;
 
         template<typename ... Param>
-        TypedObject(Param ... params) : object({ std::forward<Param>(params) ... }) {}
+        TypedObject(Param ... params)
+        {
+            object = { params ... };
+        }
 
         construct_array_t<T> object;
     };
