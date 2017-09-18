@@ -40,8 +40,13 @@ namespace GC
     };
 
     template<typename T, typename Enable = void>
-    struct Ref : public RefBase<T>
+    struct Ref : public RefBase<T> {};
+
+    template<typename T>
+    struct Ref<T, std::enable_if_t<!std::is_array<T>::value>> : public RefBase<T>
     {
+        using type = T;
+
         Ref(const Ref& ref) : RefBase<T>(ref) {}
         Ref(Ptr *pointer) : RefBase<T>(pointer) {}
         Ref(const WeakRef<T>& ref) : RefBase<T>(ref.ptr) {}
@@ -59,42 +64,35 @@ namespace GC
     };
 
     template<typename T>
-    struct Ref<T, std::enable_if_t<std::is_array<T>::value>> : public RefBase<T>
+    struct Ref<T, std::enable_if_t<std::is_array<T>::value>> : public RefBase<construct_array_t<T>>
     {
         using type = construct_array_t<T>;
         using child_type = construct_array_t<std::remove_extent_t<T>>;
 
-        Ref(const Ref& ref) : RefBase<T>(ref) {}
-        Ref(Ptr *pointer) : RefBase<T>(pointer) {}
-        Ref(const WeakRef<T>& ref) : RefBase<T>(ref.ptr) {}>
+        Ref(const Ref& ref) : RefBase<type>(ref) {}
+        Ref(Ptr *pointer) : RefBase<type>(pointer) {}
+        Ref(const WeakRef<type>& ref) : RefBase<type>(ref.ptr) {}
         Ref()
         {
-            auto pointer = Ptr::create<T>();
+            auto pointer = Ptr::create<type>();
             pointer.reference();
             this->ptr = add(pointer);
         }
 
-        construct_array_t<std::remove_extent_t<T>>& operator[](std::ptrdiff_t n)
+        child_type& operator[](std::ptrdiff_t n)
         {
             auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
             return typed_obj->object[n];
         }
 
-        construct_array_t<std::remove_extent_t<T>>& at(std::ptrdiff_t n)
+        child_type& at(std::ptrdiff_t n)
         {
             auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
             return typed_obj->object.at(n);
         }
-
-        construct_array_t<T>& operator=(const std::initializer_list<std::remove_extent_t<T>>& b)
-        {
-            // auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
-            auto* typed_obj = static_cast<TypedObject<construct_array_t<T>>*>(this->ptr->get_object());
-            return typed_obj->object = b;
-        }
         
     private:
-        friend WeakRef<T>;
-        friend void traverse<Ref<T>>(Ref<T>&, unsigned int);
+        friend WeakRef<type>;
+        friend void traverse<Ref<type>>(Ref<type>&, unsigned int);
     };
 }
