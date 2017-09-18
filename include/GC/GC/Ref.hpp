@@ -47,20 +47,20 @@ namespace GC
     {
         using type = T;
 
-        Ref(const Ref& ref) : RefBase<T>(ref) {}
-        Ref(Ptr *pointer) : RefBase<T>(pointer) {}
-        Ref(const WeakRef<T>& ref) : RefBase<T>(ref.ptr) {}
+        Ref(const Ref& ref) : RefBase<type>(ref) {}
+        Ref(Ptr *pointer) : RefBase<type>(pointer) {}
+        Ref(const WeakRef<type>& ref) : RefBase<type>(ref.ptr) {}
         template<typename ... Param>
         Ref(Param... params)
         {
-            auto pointer = Ptr::create<T>(std::forward<Param>(params) ...);
+            auto pointer = Ptr::create<type>(std::forward<Param>(params) ...);
             pointer.reference();
             this->ptr = add(pointer);
         }
 
     private:
-        friend WeakRef<T>;
-        friend void traverse<Ref<T>>(Ref<T>&, unsigned int);
+        friend WeakRef<type>;
+        friend void traverse<Ref<T>>(Ref<type>&, unsigned int);
     };
 
     template<typename T>
@@ -81,13 +81,13 @@ namespace GC
 
         child_type& operator[](std::ptrdiff_t n)
         {
-            auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
+            auto* typed_obj = static_cast<TypedObject<type>*>(this->ptr->get_object());
             return typed_obj->object[n];
         }
 
         child_type& at(std::ptrdiff_t n)
         {
-            auto* typed_obj = static_cast<TypedObject<T>*>(this->ptr->get_object());
+            auto* typed_obj = static_cast<TypedObject<type>*>(this->ptr->get_object());
             return typed_obj->object.at(n);
         }
         
