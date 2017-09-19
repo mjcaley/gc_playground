@@ -48,7 +48,7 @@ namespace GC
         using type = T;
 
         Ref(const Ref& ref) : RefBase<type>(ref) {}
-        Ref(Ptr *pointer) : RefBase<type>(pointer) {}
+        Ref(Ptr* pointer) : RefBase<type>(pointer) {}
         Ref(const WeakRef<type>& ref) : RefBase<type>(ref.ptr) {}
         template<typename ... Param>
         Ref(Param... params)
