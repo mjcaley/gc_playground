@@ -5,7 +5,7 @@
 #include "GC/Ptr.hpp"
 
 
-unsigned int GC::Detail::current_mark { 0 };
+unsigned int GC::Detail::current_mark { 1 };
 
 std::forward_list<GC::Ptr> GC::Detail::used_list;
 
