@@ -26,22 +26,22 @@ namespace GC
                              weak_ref_count(pointer.weak_ref_count) {}
 
         template<typename T, typename ... Param>
-        static Ptr create(std::function<void(unsigned int)> traverse, Param ... params)
-        {
-            return Ptr(std::make_unique<TypedObject<T>>(std::forward<Param>(params) ...), traverse);
-        };
-
-        template<typename T, typename ... Param>
         static Ptr create(Param ... params)
         {
             auto typed_obj = std::make_unique<TypedObject<T>>(std::forward<Param>(params) ...);
             auto* raw_obj = typed_obj.get();
             auto traversal = [raw_obj](unsigned int marker) { traverse<T>(raw_obj->object, marker); };
-
             auto ptr = Ptr(std::move(typed_obj), traversal);
-            
             return ptr;
-        };
+        }
+
+        template<typename T, typename ... Param>
+        static Ptr create_traverse(std::function<void(unsigned int)> traverse_func, Param ... params)
+        {
+            auto typed_obj = std::make_unique<TypedObject<T>>(std::forward<Param>(params) ...);
+            auto ptr = Ptr(std::move(typed_obj), traverse_func);
+            return ptr;
+        }
 
         Object* get_object() { return object.get(); }
 
@@ -84,15 +84,12 @@ namespace GC
     private:
         std::unique_ptr<Object> object;
 
-        unsigned int mark_count;
-        unsigned int ref_count;
-        unsigned int weak_ref_count;
+        unsigned int mark_count { 0 };
+        unsigned int ref_count { 0 };
+        unsigned int weak_ref_count { 0 };
         std::function<void(unsigned int)> traverse_func;
 
         Ptr(std::unique_ptr<Object> object, std::function<void(unsigned int)> traverse) :
-                mark_count(0),
-                ref_count(0),
-                weak_ref_count(0),
                 object(std::move(object)),
                 traverse_func(std::move(traverse)) {}
 
