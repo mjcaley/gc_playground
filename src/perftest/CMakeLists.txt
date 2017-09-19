@@ -9,4 +9,4 @@ set(PERFTEST_SOURCES
         main.cpp)
 
 add_executable(${PERFTEST} ${PERFTEST_SOURCES})
-target_include_directories(${PERFTEST} PUBLIC ${GC_PLAYGROUND_INCLUDE})
+target_link_libraries(${PERFTEST} ${LIBGC_PLAYGROUND})
