@@ -18,16 +18,13 @@ target_include_directories(Catch INTERFACE ${CATCH_INCLUDE})
 
 set(TEST_SOURCES
         test_main.cpp
-        test_gc.cpp
+        test_collector.cpp
         test_object.cpp
+        test_ptr.cpp
         test_ref.cpp
-        test_utility.cpp
-        test_valueobject.cpp
         test_weakref.cpp)
 
 add_executable(${TESTS} ${TEST_SOURCES})
-
-target_include_directories(${TESTS} PUBLIC ${GC_PLAYGROUND_INCLUDE})
 target_link_libraries(${TESTS} ${LIBGC_PLAYGROUND} Catch)
 
 setup_target_for_coverage(NAME coverage EXECUTABLE ${TESTS} DEPENDENCIES ${TESTS})
