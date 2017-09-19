@@ -5,6 +5,14 @@
 #include "GC/Ptr.hpp"
 
 
+unsigned int GC::Detail::current_mark { 0 };
+
+std::forward_list<GC::Ptr> GC::Detail::used_list;
+
+GC::Allocations GC::allocations;
+
+float GC::collection_percentage { 0.25f };
+
 std::uintmax_t GC::Allocations::resolve()
 {
     existing += created;

@@ -13,11 +13,11 @@ namespace GC
 {
     namespace Detail
     {
-        static unsigned int current_mark { 0 };
-        static std::forward_list<Ptr> used_list;
+        extern unsigned int current_mark;
+        extern std::forward_list<Ptr> used_list;
     }
 
-    static struct Allocations
+    extern struct Allocations
     {
         std::uintmax_t existing { 0 };
         std::uintmax_t created { 0 };
@@ -26,7 +26,7 @@ namespace GC
         std::uintmax_t resolve();
     } allocations;
 
-    static float collection_percentage { 0.25f };
+    extern float collection_percentage;
 
     Ptr* add(Ptr pointer);
     void mark(unsigned int marker);
