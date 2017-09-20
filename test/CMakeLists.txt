@@ -7,10 +7,10 @@ set(CMAKE_CXX_STANDARD 14)
 # Options for CodeCoverage
 include(CodeCoverage)
 set(COVERAGE_EXCLUDES
-        */test/*
-        */include/Catch/*
-        */Applications/*
-        */v1/*)
+        '/Applications/*'
+        '${CMAKE_SOURCE_DIR}/include/Catch/*'
+        '${CMAKE_SOURCE_DIR}/test/*'
+        )
 APPEND_COVERAGE_COMPILER_FLAGS()
 
 add_library(Catch INTERFACE)
