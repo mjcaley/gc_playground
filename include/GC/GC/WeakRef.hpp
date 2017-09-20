@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <type_traits>
-
 #include "GC/Collector.hpp"
 #include "GC/construct_array.hpp"
 

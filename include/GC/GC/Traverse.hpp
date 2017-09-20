@@ -1,6 +1,9 @@
 #pragma once
 
 #include <array>
+#include <type_traits>
+
+#include "GC/construct_array.hpp"
 
 
 namespace GC
