@@ -22,6 +22,7 @@ set(TEST_SOURCES
         test_object.cpp
         test_ptr.cpp
         test_ref.cpp
+        test_ref_traverse.cpp
         test_traverse.cpp
         test_weakref.cpp)
 
