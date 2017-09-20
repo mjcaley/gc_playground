@@ -6,6 +6,7 @@
 #include "GC/Collector.hpp"
 #include "GC/construct_array.hpp"
 
+
 namespace GC 
 {
     template<typename T> struct WeakRef;
