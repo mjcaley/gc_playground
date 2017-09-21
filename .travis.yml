@@ -12,6 +12,7 @@ addons:
     packages:
       - g++-5
       - cmake3
+      - lcov
 
 script:
   - mkdir build
