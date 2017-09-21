@@ -5,9 +5,6 @@ before_install: sudo apt-get -qq update
 install:
     - if [ "$CXX" = "g++" ]; then export CXX="g++-5" CC="gcc-5"; fi
 
-compiler:
-  - gcc
-
 addons:
   apt:
     sources:
@@ -24,7 +21,7 @@ script:
   - make check
 
 after_success:
-    Creating report
+  # Creating report
   - cd ${TRAVIS_BUILD_DIR}
   - lcov --directory . --capture --output-file coverage.info # capture coverage info
   - lcov --remove coverage.info '/usr/*' '*/test/test_*.cpp' '*/include/Catch/catch.hpp' --output-file coverage.info # filter out system
