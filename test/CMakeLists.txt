@@ -19,6 +19,7 @@ target_include_directories(Catch INTERFACE ${CATCH_INCLUDE})
 set(TEST_SOURCES
         test_main.cpp
         test_collector.cpp
+        test_construct_array.cpp
         test_object.cpp
         test_ptr.cpp
         test_ref.cpp
