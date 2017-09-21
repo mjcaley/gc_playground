@@ -71,6 +71,13 @@ TEST_CASE( "Ref from WeakRef", "[gc][ref]" )
     REQUIRE(new_ref.get() == orig.get());
 }
 
+TEST_CASE( "Ref to WeakRef" , "[gc][ref]" )
+{
+    GC::Ref<int> orig(42);
+    
+    REQUIRE_NOTHROW(orig.to_weak_ref());
+}
+
 TEST_CASE( "Ref dereferences when out of scope", "[gc][ref]" )
 {
     auto ptr = GC::Ptr::create<int>(42);

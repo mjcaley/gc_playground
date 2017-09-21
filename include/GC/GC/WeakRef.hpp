@@ -16,10 +16,11 @@ namespace GC {
         WeakRef(const WeakRef& ref) : ptr(ref.ptr) { ptr->reference_weak(); }
         virtual ~WeakRef() { ptr->dereference_weak(); };
 
-    protected:
-        Ptr* ptr;
+        Ref<T> to_ref() { return Ref<T>(ptr); }
 
     private:
+        Ptr* ptr;
+
         friend Ref<T>;
     };
 }

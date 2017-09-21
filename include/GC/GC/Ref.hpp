@@ -22,6 +22,8 @@ namespace GC
 
         Ptr* get() { return ptr; }
 
+        WeakRef<T> to_weak_ref() { return WeakRef<T>(ptr); }
+
         T& operator*()
         {
             auto *typed_obj = static_cast<TypedObject<T>*>(ptr->get_object());

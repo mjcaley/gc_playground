@@ -18,6 +18,14 @@ TEST_CASE( "WeakRef from Ptr", "[gc][weakref]" )
     REQUIRE(ptr.get_weak_ref_count() == 1);
 }
 
+TEST_CASE( "WeakRef to Ref" , "[gc][ref]" )
+{
+    GC::Ref<int> orig(42);
+    GC::WeakRef<int> weak(orig);
+    
+    REQUIRE_NOTHROW(weak.to_ref());
+}
+
 TEST_CASE( "WeakRef increments weak reference count", "[gc][weakref]" )
 {
     GC::Ref<int> ref(42);
