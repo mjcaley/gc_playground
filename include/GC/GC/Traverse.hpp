@@ -2,6 +2,7 @@
 
 #include <array>
 #include <type_traits>
+#include <vector>
 
 #include "GC/construct_array.hpp"
 
