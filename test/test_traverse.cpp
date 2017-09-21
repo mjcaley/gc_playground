@@ -14,7 +14,7 @@ struct TraverseMock
 namespace GC
 {
     template<>
-    void GC::traverse(TraverseMock& object, unsigned int marker)
+    void traverse(TraverseMock& object, unsigned int marker)
     {
         object.mark = marker;
     }
