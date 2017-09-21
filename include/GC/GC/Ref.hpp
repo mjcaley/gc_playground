@@ -56,7 +56,7 @@ namespace GC
         {
             auto pointer = Ptr::create<type>(std::forward<Param>(params) ...);
             pointer.reference();
-            this->ptr = add(pointer);
+            this->ptr = add(std::move(pointer));
         }
 
     private:
@@ -77,7 +77,7 @@ namespace GC
         {
             auto pointer = Ptr::create<type>();
             pointer.reference();
-            this->ptr = add(pointer);
+            this->ptr = add(std::move(pointer));
         }
 
         child_type& operator[](std::ptrdiff_t n)

@@ -12,12 +12,8 @@ namespace GC
 {
     template<typename T, typename Enable> struct Ref;
 
-    struct Ptr {
-        Ptr(Ptr& pointer) : object(std::move(pointer.object)),
-                            traverse_func(pointer.traverse_func),
-                            mark_count(pointer.mark_count),
-                            ref_count(pointer.ref_count),
-                            weak_ref_count(pointer.weak_ref_count) {}
+    struct Ptr
+    {
         Ptr(Ptr&& pointer) : object(std::move(pointer.object)),
                              traverse_func(pointer.traverse_func),
                              mark_count(pointer.mark_count),
