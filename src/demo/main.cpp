@@ -27,11 +27,14 @@ struct Reffer
     friend void GC::traverse<Reffer>(Reffer&, unsigned int);
 };
 
-template<>
-void GC::traverse<Reffer>(Reffer& object, unsigned int marker)
+namespace GC
 {
-    auto value_ref = Ref<int>(object.value);
-    traverse(value_ref, marker);
+    template<>
+    void GC::traverse<Reffer>(Reffer& object, unsigned int marker)
+    {
+        auto value_ref = Ref<int>(object.value);
+        traverse(value_ref, marker);
+    }
 }
 
 int main(int argc, const char * argv[]) {

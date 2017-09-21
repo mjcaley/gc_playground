@@ -11,10 +11,13 @@ struct TraverseMock
     unsigned int mark { 0 };
 };
 
-template<>
-void GC::traverse(TraverseMock& object, unsigned int marker)
+namespace GC
 {
-    object.mark = marker;
+    template<>
+    void GC::traverse(TraverseMock& object, unsigned int marker)
+    {
+        object.mark = marker;
+    }
 }
 
 TEST_CASE( "Traverse passes mark", "[gc][traverse]" )
