@@ -87,7 +87,7 @@ void sweep(std::forward_list<Allocation>& allocations)
 {
     std::remove_if(std::begin(allocations),
                    std::end(allocations),
-                   [](Allocation& a) { return a.mark != current; }
+                   [](const Allocation& a) { return a.mark != current; }
    );
 }
 
