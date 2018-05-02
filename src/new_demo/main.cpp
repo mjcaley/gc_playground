@@ -13,7 +13,7 @@
 #include "pointer.hpp"
 
 
-using Byte = unsigned char;
+using Byte = std::byte;
 using Int = std::int64_t;
 using UInt = std::uint64_t;
 using Float = double;
