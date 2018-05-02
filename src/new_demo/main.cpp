@@ -71,7 +71,7 @@ std::vector<Allocation*> get_roots(Iterator begin, Iterator end)
 
 int current = 0;
 
-void mark(std::forward_list<Allocation> allocations, std::forward_list<Frame>& stack_frames)
+void mark(std::forward_list<Allocation>& allocations, std::forward_list<Frame>& stack_frames)
 {
     ++current;
     auto roots = get_roots(std::begin(stack_frames), std::end(stack_frames));
@@ -83,23 +83,11 @@ void mark(std::forward_list<Allocation> allocations, std::forward_list<Frame>& s
     }
 }
 
-void sweep(std::forward_list<Allocation> allocations)
+void sweep(std::forward_list<Allocation>& allocations)
 {
     std::remove_if(std::begin(allocations),
                    std::end(allocations),
-                   [](Allocation& a)
-                   {
-                       if (a.mark != current)
-                       {
-                           std::cout << "deleting" << std::endl;
-                           a.release();
-                           return true;
-                       }
-                       else
-                       {
-                           return false;
-                       }
-                   }
+                   [](Allocation& a) { return a.mark != current; }
    );
 }
 

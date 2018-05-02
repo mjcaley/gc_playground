@@ -7,13 +7,32 @@
 struct Allocation
 {
     Allocation(std::size_t length, void* pointer) : length(length), pointer(pointer) {};
-    Allocation(std::size_t length, void* pointer, int mark) : length(length), pointer(pointer), mark(mark) {};
+    Allocation(Allocation&& a)
+    {
+        pointer = a.pointer;
+        a.pointer = nullptr;
+    }
+    ~Allocation()
+    {
+        reset();
+    }
     
+    Allocation& operator=(Allocation&& a)
+    {
+        pointer = a.pointer;
+        a.pointer = nullptr;
+
+        return *this;
+    }
+
     std::size_t length;
     void* pointer;  // Make private?
     int mark { -1 };
     
-    void release();
+    void reset()
+    {
+        std::free(pointer);
+    };
 };
 
 template<typename T>
