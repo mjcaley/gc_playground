@@ -4,6 +4,7 @@
 
 
 struct Allocation;
+struct StackFrames;
 
 struct Frame
 {
@@ -26,19 +27,22 @@ struct Frame
     
 private:
     std::vector<Allocation*> locals;
+    Allocation* return_value { nullptr };
+    
+    friend StackFrames;
 };
 
 struct StackFrames
 {
     void pop()
     {
+        assign_return_value(frames.back(), *(frames.end() - 2));
         frames.pop_back();
     }
 
     Frame& push()
     {
-        frames.emplace_back();
-        return top();
+        return frames.emplace_back();
     }
 
     Frame& top()
@@ -48,15 +52,12 @@ struct StackFrames
 
 private:
     std::vector<Frame> frames;
+    
+    void assign_return_value(const Frame& from, Frame& to)
+    {
+        if (from.return_value)
+        {
+            to.locals.emplace_back(from.return_value);
+        }
+    }
 };
-
-// Frame& push_frame()
-// {
-//     stack_frames.emplace_front();
-//     return stack_frames.front();
-// }
-
-// void pop_frame()
-// {
-//     stack_frames.pop_front();
-// }

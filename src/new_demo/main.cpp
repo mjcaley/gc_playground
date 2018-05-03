@@ -80,9 +80,9 @@ int main()
 {
     
 	std::forward_list<Allocation> allocated;
+	auto stack = StackFrames();
 	
-	
-	auto& frame = push_frame();
+	auto& frame = stack.push();
 	
 	auto* ptr = allocate<int>(1);
 	allocated.emplace_front(1, ptr);
@@ -104,7 +104,7 @@ int main()
 	sweep(allocated);
 	std::cout << "Mark after " << a2_ptr->mark << std::endl;
 	
-	pop_frame();
+	stack.pop();
 	
 	return 0;
 }
