@@ -14,11 +14,11 @@ struct Frame
         locals.emplace_back(p.allocation);
     }
     
-    // template<typename T>
-    // Pointer<T> new_pointer()
-    // {
+    template<typename T>
+    Pointer<T> new_pointer()
+    {
         
-    // }
+    }
     
     const std::vector<Allocation*> get_locals() const
     {

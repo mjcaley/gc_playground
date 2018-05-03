@@ -36,18 +36,7 @@ struct Allocation
 };
 
 template<typename T>
-void* allocate(std::size_t size)
-{
-    void* allocated = std::calloc(sizeof(T), size);
-    if (allocated == nullptr)
-    {
-        throw std::bad_alloc();
-    }
-    return allocated;
-}
-
-template<typename T>
-Allocation alloc(std::size_t size)
+Allocation allocate(std::size_t size)
 {
     void* allocated = std::calloc(sizeof(T), size);
     if (allocated == nullptr)

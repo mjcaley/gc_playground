@@ -2,7 +2,7 @@
 
 
 struct Allocation;
-struct Frame; // forward declaration
+struct Frame;
 
 template<typename T>
 struct Pointer

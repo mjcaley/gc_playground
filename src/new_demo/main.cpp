@@ -13,6 +13,7 @@
 #include "allocation.hpp"
 #include "pointer.hpp"
 #include "frame.hpp"
+#include "memory.hpp"
 
 
 using Byte = std::byte;
@@ -76,6 +77,23 @@ std::ostream& operator<<(std::ostream& os, const Demo& d)
 };
 
 
+std::ostream& operator<<(std::ostream& os, const Allocation& a)
+{
+    os << "Allocation { mark: " << a.mark << ", length: " << a.length << ", addr: " << a.pointer << "}";
+    return os;
+}
+
+
+template<typename Iterator>
+void print_allocations(Iterator begin, Iterator end)
+{
+    for (; begin != end; ++begin)
+    {
+        std::cout << *begin << "\n";
+    }
+}
+
+
 int main()
 {
     
@@ -84,25 +102,25 @@ int main()
 	
 	auto& frame = stack.push();
 	
-	auto* ptr = allocate<int>(1);
-	allocated.emplace_front(1, ptr);
-	auto* ptr2 = allocate<int>(1);
-	allocated.emplace_front(1, ptr2);
+	auto a = allocate<int>(1);
+	allocated.push_front(std::move(a));
+	auto a2 = allocate<int>(1);
+	allocated.push_front(std::move(a2));
 	
-	auto& a2 = allocated.front();
-// 	a2.mark = 42;
-	auto* a2_ptr = &a2;
-	
-	
-	
-	auto p2 = Pointer<int>(&a2);
+	auto p2 = Pointer<int>(&(allocated.front()));
 	frame.add_local(p2);
-	std::cout << frame.get_locals().size() << std::endl;
+	std::cout << "Number of frames " << frame.get_locals().size() << std::endl;
 	
-	std::cout << "Mark before " << a2_ptr->mark << std::endl;
+	std::cout << "Mark before " << allocated.front().mark << std::endl;
+	
+	print_allocations(std::begin(allocated), std::end(allocated));
+	
 	mark(allocated, stack_frames);
 	sweep(allocated);
-	std::cout << "Mark after " << a2_ptr->mark << std::endl;
+	
+	print_allocations(std::begin(allocated), std::end(allocated));
+	
+	std::cout << "Mark after " << allocated.front().mark << std::endl;
 	
 	stack.pop();
 	
