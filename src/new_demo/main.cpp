@@ -11,6 +11,7 @@
 
 #include "allocation.hpp"
 #include "pointer.hpp"
+#include "frame.hpp"
 
 
 using Byte = std::byte;
@@ -19,41 +20,8 @@ using UInt = std::uint64_t;
 using Float = double;
 
 
-struct Frame
-{
-    template<typename T>
-    void add_local(const Pointer<T>& p)
-    {
-        locals.emplace_back(p.allocation);
-    }
-    
-    // template<typename T>
-    // Pointer<T> new_pointer()
-    // {
-        
-    // }
-    
-    const std::vector<Allocation*> get_locals() const
-    {
-        return locals;
-    }
-    
-private:
-    std::vector<Allocation*> locals;
-};
 
 std::forward_list<Frame> stack_frames {};
-
-Frame& push_frame()
-{
-    stack_frames.emplace_front();
-    return stack_frames.front();
-}
-
-void pop_frame()
-{
-    stack_frames.pop_front();
-}
 
 
 template<typename Iterator>
