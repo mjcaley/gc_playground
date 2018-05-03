@@ -41,7 +41,7 @@ struct StackFrames
         return top();
     }
 
-    Frame& top
+    Frame& top()
     {
         return frames.back();
     }
