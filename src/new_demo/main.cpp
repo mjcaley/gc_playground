@@ -33,7 +33,7 @@ struct Frame
         
     // }
     
-    const std::vector<Allocation*>& get_locals()
+    const std::vector<Allocation*> get_locals() const
     {
         return locals;
     }
@@ -71,7 +71,7 @@ std::vector<Allocation*> get_roots(Iterator begin, Iterator end)
 
 int current = 0;
 
-void mark(std::forward_list<Allocation>& allocations, std::forward_list<Frame>& stack_frames)
+void mark(std::forward_list<Allocation>& allocations, const std::forward_list<Frame>& stack_frames)
 {
     ++current;
     auto roots = get_roots(std::begin(stack_frames), std::end(stack_frames));
