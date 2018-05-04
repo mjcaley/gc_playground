@@ -7,6 +7,7 @@
 struct Allocation
 {
     Allocation(std::size_t length, void* pointer) : length(length), pointer(pointer) {};
+    Allocation(const Allocation&) = delete;
     Allocation(Allocation&& a)
     {
         pointer = a.pointer;
@@ -17,6 +18,7 @@ struct Allocation
         reset();
     }
     
+    Allocation& operator=(const Allocation&) = delete;
     Allocation& operator=(Allocation&& a)
     {
         pointer = a.pointer;
