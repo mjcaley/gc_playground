@@ -9,6 +9,7 @@ struct Pointer
 {
     using type = T;
     
+    Pointer() : allocation(nullptr) {};
     Pointer(Allocation* a) : allocation(a) {};
     Pointer(const Pointer& p) : allocation(p.allocation) {};
     Pointer(const Pointer& p, int position) : allocation(p.allocation), position(position) {};
