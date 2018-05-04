@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <vector>
 
 
@@ -20,10 +21,12 @@ struct Frame
         
     }
     
-    const std::vector<Allocation*> get_locals() const
+    std::vector<Allocation*> get_locals()
     {
         return locals;
     }
+    
+    friend std::ostream& operator<<(std::ostream&, const Frame&);
     
 private:
     std::vector<Allocation*> locals;
@@ -49,6 +52,15 @@ struct StackFrames
     {
         return frames.back();
     }
+    
+    using iterator = std::vector<Frame>::iterator;
+    using const_iterator = std::vector<Frame>::const_iterator;
+    
+    iterator begin() { return frames.begin(); }
+    const_iterator cbegin() { return frames.cbegin(); }
+    
+    iterator end() { return frames.end(); }
+    const_iterator cend() { return frames.end(); }
 
 private:
     std::vector<Frame> frames;

@@ -23,9 +23,6 @@ using Float = double;
 
 
 
-std::forward_list<Frame> stack_frames {};
-
-
 template<typename Iterator>
 std::vector<Allocation*> get_roots(Iterator begin, Iterator end)
 {
@@ -33,7 +30,10 @@ std::vector<Allocation*> get_roots(Iterator begin, Iterator end)
     for (; begin != end; ++begin)
     {
         std::cout << "get_roots frame" << std::endl;
-        roots.insert(std::end(roots), std::begin(begin->get_locals()), std::end(begin->get_locals()));
+        auto locals = begin->get_locals();
+        roots.insert(std::end(roots),
+                     std::begin(locals),
+                     std::end(locals));
     }
     std::cout << "Root size " << roots.size() << std::endl;
     return roots;
@@ -41,10 +41,11 @@ std::vector<Allocation*> get_roots(Iterator begin, Iterator end)
 
 int current = 0;
 
-void mark(std::forward_list<Allocation>& allocations, const std::forward_list<Frame>& stack_frames)
+template<typename Iterator>
+void mark(Iterator stack_frames_begin, Iterator stack_frames_end)
 {
     ++current;
-    auto roots = get_roots(std::begin(stack_frames), std::end(stack_frames));
+    auto roots = get_roots(stack_frames_begin, stack_frames_end);
     std::cout << "Size of roots " << roots.size() << std::endl;
     for (auto& root : roots)
     {
@@ -53,11 +54,11 @@ void mark(std::forward_list<Allocation>& allocations, const std::forward_list<Fr
     }
 }
 
-void sweep(std::forward_list<Allocation>& allocations)
+template<typename T>
+void sweep(T& allocations)
 {
-    std::remove_if(std::begin(allocations),
-                   std::end(allocations),
-                   [](const Allocation& a) { return a.mark != current; }
+    allocations.remove_if(
+       [](const Allocation& a) { return a.mark != current; }
    );
 }
 
@@ -69,6 +70,16 @@ struct Demo
     std::string third;
     Pointer<int> forth;
 };
+
+template<typename Iterator>
+std::ostream& print_vector(std::ostream& os, Iterator begin, Iterator end)
+{
+    for (; begin != end; ++begin)
+    {
+        os << *begin << " ";
+    }
+    return os;
+}
 
 std::ostream& operator<<(std::ostream& os, const Demo& d)
 {
@@ -83,9 +94,35 @@ std::ostream& operator<<(std::ostream& os, const Allocation& a)
     return os;
 }
 
+// std::ostream& operator<<(std::ostream& os, const Frame& frame)
+// {
+//     os << "Frame { ";
+//     print_vector(os, std::begin(frame.get_locals()), std::end(frame.get_locals()));
+//     os << "}\n";
+//     return os;
+// }
+
+std::ostream& operator<<(std::ostream& os, Frame& frame)
+{
+    os << "Frame { ";
+    print_vector(os, std::begin(frame.get_locals()), std::end(frame.get_locals()));
+    os << "}\n";
+    return os;
+}
+
+
 
 template<typename Iterator>
 void print_allocations(Iterator begin, Iterator end)
+{
+    for (; begin != end; ++begin)
+    {
+        std::cout << *begin << "\n";
+    }
+}
+
+template<typename Iterator>
+void print_stack_frame_locals(Iterator begin, Iterator end)
 {
     for (; begin != end; ++begin)
     {
@@ -109,13 +146,20 @@ int main()
 	
 	auto p2 = Pointer<int>(&(allocated.front()));
 	frame.add_local(p2);
-	std::cout << "Number of frames " << frame.get_locals().size() << std::endl;
+	
+	
+// 	std::cout << "Number of frames " << frame.get_locals().size() << std::endl;
+    std::cout << "locals: ";
+    auto locals = stack.top().get_locals();
+    print_vector(std::cout, locals.begin(), locals.end());
+    std::cout << "\n";
+// 	std::cout << "Stack" << stack << std::endl;
 	
 	std::cout << "Mark before " << allocated.front().mark << std::endl;
 	
 	print_allocations(std::begin(allocated), std::end(allocated));
 	
-	mark(allocated, stack_frames);
+	mark(std::begin(stack), std::end(stack));
 	sweep(allocated);
 	
 	print_allocations(std::begin(allocated), std::end(allocated));
