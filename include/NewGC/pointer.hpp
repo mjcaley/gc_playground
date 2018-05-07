@@ -4,15 +4,27 @@
 struct Allocation;
 struct Frame;
 
+
+struct PointerBase
+{
+    PointerBase() : allocation(nullptr) {};
+    PointerBase(Allocation* a) : allocation(a) {};
+    PointerBase(const PointerBase& p) : allocation(p.allocation) {};
+    PointerBase(const PointerBase& p, int position) : allocation(p.allocation), position(position) {};
+    
+    Allocation* allocation;
+    int position { 0 };
+};
+
 template<typename T>
-struct Pointer
+struct Pointer : public PointerBase
 {
     using type = T;
     
-    Pointer() : allocation(nullptr) {};
-    Pointer(Allocation* a) : allocation(a) {};
-    Pointer(const Pointer& p) : allocation(p.allocation) {};
-    Pointer(const Pointer& p, int position) : allocation(p.allocation), position(position) {};
+    Pointer() : PointerBase(nullptr) {};
+    Pointer(Allocation* a) : PointerBase(a) {};
+    Pointer(const Pointer& p) : PointerBase(p.allocation) {};
+    Pointer(const Pointer& p, int position) : PointerBase(p.allocation, position) {};
     
     type& operator*()
     {
@@ -61,14 +73,13 @@ struct Pointer
         return old_p;
     }
     
+    type* operator->()
+    {
+        return get();
+    }
+    
     type* get()
     {
         return static_cast<type*>(allocation->pointer);
     }
-    
-private:
-    Allocation* const allocation;
-    int position { 0 };
-    
-    friend Frame;
 };

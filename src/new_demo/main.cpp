@@ -17,12 +17,6 @@
 #include "types.hpp"
 
 
-using Byte = std::byte;
-using Int = std::int64_t;
-using UInt = std::uint64_t;
-using Float = double;
-
-
 
 template<typename Iterator>
 std::vector<Allocation*> get_roots(Iterator begin, Iterator end)
@@ -53,6 +47,13 @@ void mark(Iterator stack_frames_begin, Iterator stack_frames_end)
         std::cout << root->mark << std::endl;
         root->mark = current;
     }
+}
+
+template<typename Iterator>
+void mark2(Iterator stack_frames_begin, Iterator stack_frames_end)
+{
+    ++current;
+    auto roots = get_roots(stack_frames_begin, stack_frames_end);
 }
 
 template<typename T>
@@ -168,6 +169,31 @@ int main()
 	std::cout << "Mark after " << allocated.front().mark << std::endl;
 	
 	stack.pop();
+	
+	
+	
+	
+	// Stack types
+	std::cout << '\n';
+	auto f_mem = allocate<Float>(1);
+	auto f = Pointer<Float>(&f_mem);
+	f->value = 4.2;
+	std::cout << "Float value: " << f->value << std::endl;
+	auto e = Example();
+	e.number = 42;
+	e.other_num = f;
+	std::cout << "Example struct: { number: " << e.number << ", other_num: " << e.other_num->value << " }" << std::endl;
+// 	e.mark_members(100);
+    auto ptrs = e.get_pointers();
+    for (auto& p : ptrs)
+    {
+        std::cout << p << std::endl;
+        p->allocation->mark = 1;
+        //recursive p->get_pointers();
+    }
+    
+    auto array1 = Array<Float, 1>();
+    auto array2 = Array<Pointer<Float>, 1>();
 	
 	return 0;
 }

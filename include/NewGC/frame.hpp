@@ -5,6 +5,7 @@
 
 
 struct Allocation;
+struct Collectable;
 struct StackFrames;
 
 struct Frame
@@ -21,6 +22,11 @@ struct Frame
         
     }
     
+    void add_to_stack(Collectable* c)
+    {
+        
+    }
+    
     std::vector<Allocation*> get_locals()
     {
         return locals;
@@ -30,6 +36,8 @@ struct Frame
     
 private:
     std::vector<Allocation*> locals;
+    std::vector<Collectable*> stack_objects;
+    std::vector<PointerBase*> pointer_objects;
     Allocation* return_value { nullptr };
     
     friend StackFrames;
