@@ -14,6 +14,7 @@
 #include "pointer.hpp"
 #include "frame.hpp"
 #include "memory.hpp"
+#include "types.hpp"
 
 
 using Byte = std::byte;
