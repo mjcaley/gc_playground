@@ -1,11 +1,12 @@
 #pragma once
 
+#include "collectable.hpp"
 
 struct Allocation;
 struct Frame;
 
 
-struct PointerBase
+struct PointerBase : public Collectable
 {
     PointerBase() : allocation(nullptr) {};
     PointerBase(Allocation* a) : allocation(a) {};

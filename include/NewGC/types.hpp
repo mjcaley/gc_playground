@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#include "collectable.hpp"
+
 
 using Bool = bool;
 using Byte = std::byte;
@@ -14,17 +16,7 @@ using Int = std::int64_t;
 
 
 
-struct Collectable
-{
-    virtual ~Collectable() = default;
 
-    Collectable* add_to_frame(Frame& frame)
-    {
-        frame.add_to_stack(this);
-    }
-    
-    virtual std::vector<PointerBase*> get_pointers() = 0;
-};
 
 template<typename T>
 struct Function// : public Collectable
