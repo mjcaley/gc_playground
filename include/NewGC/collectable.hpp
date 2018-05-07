@@ -4,10 +4,11 @@ struct Collectable
 {
     virtual ~Collectable() = default;
 
-    Collectable* add_to_frame(Frame& frame)
-    {
-        frame.add_to_stack(this);
-    }
+    // Collectable* add_to_frame(Frame& frame)
+    // {
+    //     frame.add_to_stack(this);
+    // }
     
-    virtual std::vector<PointerBase*> get_pointers() = 0;
+    int current_mark { -1 };
+    virtual void mark(int new_mark) = 0;
 };

@@ -83,4 +83,9 @@ struct Pointer : public PointerBase
     {
         return static_cast<type*>(allocation->pointer);
     }
+
+    virtual void mark(int new_mark) override
+    {
+        allocation->mark = new_mark;
+    }
 };

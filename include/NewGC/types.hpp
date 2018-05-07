@@ -36,25 +36,35 @@ template<typename T, std::size_t N>
 struct Array : public Collectable
 {
     std::array<T, N> array;
-
-    virtual std::vector<PointerBase*> get_pointers() override {};
-};
-
-template<typename T2, std::size_t N>
-struct Array<Pointer<T2>, N> : public Collectable
-{
-    std::array<Pointer<T2>, N> array;
     
-    virtual std::vector<PointerBase*> get_pointers() override
+    virtual void mark(int new_mark) override
     {
-        std::vector<PointerBase*> ptrs;
-        for (auto& element : array)
+        if (current_mark != new_mark)
         {
-            ptrs.emplace_back(&element);
+            for (auto& element : array)
+            {
+                element.mark(new_mark);
+            }
         }
-        return ptrs;
     };
 };
+
+// template<typename T2, std::size_t N>
+// struct Array<Pointer<T2>, N> : public Collectable
+// {
+//     std::array<Pointer<T2>, N> array;
+    
+//     virtual void mark(int new_mark) override
+//     {
+//         if (current_mark != new_mark)
+//         {
+//             for (auto& element : array)
+//             {
+//                 element.mark(new_mark));
+//             }
+//         }
+//     };
+// };
 
 
 struct Struct : public Collectable
@@ -63,14 +73,14 @@ struct Struct : public Collectable
     virtual std::string name() = 0; // should be a reference to a global created by compiler
 
     // members
-    virtual std::vector<PointerBase*> get_pointers() = 0;
+    virtual void mark(int new_mark) = 0;
 };
 
 
 struct Float : public Struct
 {
     virtual std::string name() override { return "Float"; }
-    virtual std::vector<PointerBase*> get_pointers() override { return {}; };
+    virtual void mark(int new_mark) override {};
     
     double value;
 };
@@ -83,8 +93,14 @@ struct Example : public Struct
     Int number { 0 };
     Pointer<Float> other_num;
     
-    virtual std::vector<PointerBase*> get_pointers() override
+    virtual void mark(int new_mark) override
     {
-        return { &other_num };
+        if (current_mark != new_mark)
+        {
+            current_mark = new_mark;
+
+            // number.mark(new_mark);
+            other_num.mark(new_mark);
+        }
     }
 };

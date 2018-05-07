@@ -183,14 +183,9 @@ int main()
 	e.number = 42;
 	e.other_num = f;
 	std::cout << "Example struct: { number: " << e.number << ", other_num: " << e.other_num->value << " }" << std::endl;
-// 	e.mark_members(100);
-    auto ptrs = e.get_pointers();
-    for (auto& p : ptrs)
-    {
-        std::cout << p << std::endl;
-        p->allocation->mark = 1;
-        //recursive p->get_pointers();
-    }
+	e.mark(100);
+    std::cout << "new mark: " << e.current_mark << std::endl;
+    
     
     auto array1 = Array<Float, 1>();
     auto array2 = Array<Pointer<Float>, 1>();
