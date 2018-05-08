@@ -18,44 +18,45 @@
 
 
 
-// template<typename Iterator>
-// std::vector<Collectable*> get_roots(Iterator begin, Iterator end)
-// {
-//     std::vector<Collectable*> roots;
-//     for (; begin != end; ++begin)
-//     {
-//         std::cout << "get_roots frame" << std::endl;
-//         auto locals = begin->get_locals();
-//         roots.insert(std::end(roots),
-//                      std::begin(locals),
-//                      std::end(locals));
-//     }
-//     std::cout << "Root size " << roots.size() << std::endl;
-//     return roots;
-// }
+std::vector<PointerBase*> get_roots(Frame* frame)
+{
+    std::vector<PointerBase*> roots;
+    while (frame)
+    {
+        std::cout << "get_roots frame" << std::endl;
+        auto locals = frame->get_locals();
+        roots.insert(std::end(roots),
+                     std::begin(locals),
+                     std::end(locals));
+        frame = frame->get_next();
+    }
+    std::cout << "Root size " << roots.size() << std::endl;
+    return roots;
+}
 
-// int current = 0;
+int current = 0;
 
-// template<typename Iterator>
-// void mark(Iterator stack_frames_begin, Iterator stack_frames_end)
-// {
-//     ++current;
-//     auto roots = get_roots(stack_frames_begin, stack_frames_end);
-//     std::cout << "Size of roots " << roots.size() << std::endl;
-//     for (auto& root : roots)
-//     {
-//         std::cout << root->current_mark << std::endl;
-//         root->current_mark = current;
-//     }
-// }
+void mark(Frame& frame)
+{
+    ++current;
+    auto roots = get_roots(&frame);
+    std::cout << "Size of roots " << roots.size() << std::endl;
+    for (auto& root : roots)
+    {
+        std::cout << "root's old mark: " << root->current_mark << std::endl;
+        std::cout << "root addr " << root << std::endl;
+        root->mark(current);
+        std::cout << "root's new mark: " << root->current_mark << std::endl;
+    }
+}
 
-// template<typename T>
-// void sweep(T& allocations)
-// {
-//     allocations.remove_if(
-//        [](const Allocation& a) { return a.mark != current; }
-//    );
-// }
+template<typename T>
+void sweep(T& allocations)
+{
+    allocations.remove_if(
+        [](const Allocation& a) { return a.mark != current; }
+    );
+}
 
 
 // struct Demo
@@ -144,6 +145,7 @@
 Pointer<Float> run(Frame& frame)
 {
     auto num = frame.new_pointer<Float>();
+    auto disposable = frame.new_pointer<Float>();
     num->value = 4.2;
     return num;
 }
@@ -214,9 +216,18 @@ int main()
     std::cout << p->value << std::endl;
     
     
-    auto frame_call_return = root_frame.call<Float>(f);
+    Pointer<Float> frame_call_return;
+    std::cout << "Pointer stack addr " << &frame_call_return << std::endl;
+    root_frame.call(frame_call_return, f);
     std::cout << frame_call_return->value << std::endl;
     std::cout << "ending everything, hopefully that frame is destroyed" << std::endl;
+    std::cout << "Pointer's pointer (on stack) " << frame_call_return.get() << " " << frame_call_return.get()->value << std::endl;
+    
+    mark(root_frame);
+    sweep(memory.allocated);
+    
+    mark(root_frame);
+    sweep(memory.allocated);
 
 	return 0;
 }

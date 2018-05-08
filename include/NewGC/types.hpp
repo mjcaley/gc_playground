@@ -77,10 +77,12 @@ struct Struct : public Collectable
 };
 
 
-struct Float : public Struct
+struct Float : public Collectable
 {
-    virtual std::string name() override { return "Float"; }
-    virtual void mark(int new_mark) override {};
+    /*virtual*/ std::string name() /*override*/ { return "Float"; }
+    virtual void mark(int new_mark) override {
+        std::cout << "Float mark!" << std::endl;
+    };
     
     double value;
 };
