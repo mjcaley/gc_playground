@@ -1,83 +1,86 @@
 #pragma once
 
 #include <iostream>
+#include <list>
+#include <memory>
 #include <vector>
 
 
-struct Allocation;
 struct Collectable;
 struct StackFrames;
 
-struct Frame
+struct FrameBase {
+private:
+    std::vector<PointerBase> locals;
+};
+
+template<typename T>
+struct Frame : public FrameBase
 {
-    template<typename T>
-    void add_local(const Pointer<T>& p)
+    void add_local(PointerBase p)
     {
-        locals.emplace_back(p.allocation);
+        locals.emplace_back(p);
     }
-    
-    template<typename T>
-    Pointer<T> new_pointer()
-    {
-        
-    }
-    
-    void add_to_stack(Collectable* c)
-    {
-        
-    }
-    
-    std::vector<Allocation*> get_locals()
+
+    std::vector<PointerBase> get_locals()
     {
         return locals;
     }
-    
-    friend std::ostream& operator<<(std::ostream&, const Frame&);
+
+    template<typename ReturnType, typename FunctionType, typename ... Args>
+    Pointer<ReturnType> call(FunctionType func, Args... args)
+    {
+        PointerBase return_value = func(args...);
+        locals.emplace_back(return_value);
+
+        return Pointer<ReturnType>(return_value);
+    }
     
 private:
-    std::vector<Allocation*> locals;
-    std::vector<Collectable*> stack_objects;
-    std::vector<PointerBase*> pointer_objects;
-    Allocation* return_value { nullptr };
-    
-    friend StackFrames;
+    Pointer<T> return_value;
 };
 
-struct StackFrames
-{
-    void pop()
-    {
-        assign_return_value(frames.back(), *(frames.end() - 2));
-        frames.pop_back();
-    }
 
-    Frame& push()
-    {
-        return frames.emplace_back();
-    }
+static std::list<FrameBase> stack_frames;
 
-    Frame& top()
-    {
-        return frames.back();
-    }
-    
-    using iterator = std::vector<Frame>::iterator;
-    using const_iterator = std::vector<Frame>::const_iterator;
-    
-    iterator begin() { return frames.begin(); }
-    const_iterator cbegin() { return frames.cbegin(); }
-    
-    iterator end() { return frames.end(); }
-    const_iterator cend() { return frames.end(); }
+// struct StackFrames
+// {
+//     void pop()
+//     {
+        
+//     }
 
-private:
-    std::vector<Frame> frames;
+//     Frame& push()
+//     {
+//         return frames.emplace_back();
+//     }
+
+//     Frame& top()
+//     {
+//         return frames.back();
+//     }
     
-    void assign_return_value(const Frame& from, Frame& to)
-    {
-        if (from.return_value)
-        {
-            to.locals.emplace_back(from.return_value);
-        }
-    }
-};
+//     // using iterator = std::vector<Frame>::iterator;
+//     // using const_iterator = std::vector<Frame>::const_iterator;
+    
+//     // iterator begin() { return frames.begin(); }
+//     // const_iterator cbegin() { return frames.cbegin(); }
+    
+//     // iterator end() { return frames.end(); }
+//     // const_iterator cend() { return frames.end(); }
+
+// private:
+//     static std::unique_ptr<FrameBase> head { Frame<int>() };
+//     static std::unique_ptr<FrameBase> tail { nullptr };
+//     std::unique_ptr<FrameBase> prev { nullptr };
+//     std::unique_ptr<FrameBase> next { nullptr };
+//     // std::vector<Frame> frames;
+    
+//     // void assign_return_value(const Frame& from, Frame& to)
+//     // {
+//     //     if (from.return_value)
+//     //     {
+//     //         to.locals.emplace_back(from.return_value);
+//     //     }
+//     // }
+// };

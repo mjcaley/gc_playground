@@ -2,19 +2,21 @@
 
 #include "collectable.hpp"
 
-struct Allocation;
-struct Frame;
 
+struct Allocation;
 
 struct PointerBase : public Collectable
 {
     PointerBase() : allocation(nullptr) {};
     PointerBase(Allocation* a) : allocation(a) {};
     PointerBase(const PointerBase& p) : allocation(p.allocation) {};
-    PointerBase(const PointerBase& p, int position) : allocation(p.allocation), position(position) {};
     
     Allocation* allocation;
-    int position { 0 };
+
+    virtual void mark(int new_mark) override
+    {
+        allocation->mark = new_mark;
+    }
 };
 
 template<typename T>
@@ -25,54 +27,59 @@ struct Pointer : public PointerBase
     Pointer() : PointerBase(nullptr) {};
     Pointer(Allocation* a) : PointerBase(a) {};
     Pointer(const Pointer& p) : PointerBase(p.allocation) {};
-    Pointer(const Pointer& p, int position) : PointerBase(p.allocation, position) {};
+    Pointer(const PointerBase& p) : PointerBase(p) {};
+
+    PointerBase to_base_pointer()
+    {
+        return PointerBase(allocation);
+    }
     
     type& operator*()
     {
-        return *(static_cast<type*>(allocation->pointer) + position);
+        return *(static_cast<type*>(allocation->pointer));
     }
     
-    Pointer& operator++()
-    {
-        if ((position + 1) > (allocation->length - 1))
-        {
-            throw std::out_of_range("Pointer out of bounds");
-        }
-        ++position;
-        return *this;
-    }
+    // Pointer& operator++()
+    // {
+    //     if ((position + 1) > (allocation->length - 1))
+    //     {
+    //         throw std::out_of_range("Pointer out of bounds");
+    //     }
+    //     ++position;
+    //     return *this;
+    // }
     
-    Pointer operator++(int)
-    {
-        if ((position + 1) > (allocation->length - 1))
-        {
-            throw std::out_of_range("Pointer out of bounds");
-        }
-        auto old_p = Position(*this);
-        ++position;
-        return old_p;
-    }
+    // Pointer operator++(int)
+    // {
+    //     if ((position + 1) > (allocation->length - 1))
+    //     {
+    //         throw std::out_of_range("Pointer out of bounds");
+    //     }
+    //     auto old_p = Position(*this);
+    //     ++position;
+    //     return old_p;
+    // }
     
-    Pointer& operator--()
-    {
-        if ((position - 1) < 0)
-        {
-            throw std::out_of_range("Pointer out of bounds");
-        }
-        --position;
-        return *this;
-    }
+    // Pointer& operator--()
+    // {
+    //     if ((position - 1) < 0)
+    //     {
+    //         throw std::out_of_range("Pointer out of bounds");
+    //     }
+    //     --position;
+    //     return *this;
+    // }
     
-    Pointer operator--(int)
-    {
-        if ((position - 1) > 0)
-        {
-            throw std::out_of_range("Pointer out of bounds");
-        }
-        auto old_p = Position(*this);
-        --position;
-        return old_p;
-    }
+    // Pointer operator--(int)
+    // {
+    //     if ((position - 1) > 0)
+    //     {
+    //         throw std::out_of_range("Pointer out of bounds");
+    //     }
+    //     auto old_p = Position(*this);
+    //     --position;
+    //     return old_p;
+    // }
     
     type* operator->()
     {
@@ -82,10 +89,5 @@ struct Pointer : public PointerBase
     type* get()
     {
         return static_cast<type*>(allocation->pointer);
-    }
-
-    virtual void mark(int new_mark) override
-    {
-        allocation->mark = new_mark;
     }
 };
