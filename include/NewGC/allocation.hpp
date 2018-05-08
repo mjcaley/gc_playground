@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdlib>
-#include <new>
 
 
 struct Allocation
@@ -36,14 +35,3 @@ struct Allocation
         std::free(pointer);
     };
 };
-
-template<typename T>
-Allocation allocate(std::size_t size)
-{
-    void* allocated = std::calloc(sizeof(T), size);
-    if (allocated == nullptr)
-    {
-        throw std::bad_alloc();
-    }
-    return Allocation {size, allocated};
-}

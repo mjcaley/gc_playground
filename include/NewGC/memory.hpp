@@ -1,15 +1,24 @@
 #pragma once
 
+#include <cstdlib>
+#include <new>
+#include <forward_list>
+
 #include "allocation.hpp"
-#include "pointer.hpp"
-#include "frame.hpp"
 
 
-template<typename T>
-void new_pointer(std::size_t num = 1)
+struct MemoryManager
 {
-    auto a = allocate<T>(num);
-    auto p = Pointer<T>(a);
+    std::forward_list<Allocation> allocated;
     
-    return p;
-}
+    template<typename T>
+    Allocation allocate(std::size_t size)
+    {
+        void* memory = std::calloc(sizeof(T), size);
+        if (memory == nullptr)
+        {
+            throw std::bad_alloc();
+        }
+        return Allocation {size, memory};
+    }
+};

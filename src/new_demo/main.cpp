@@ -12,8 +12,8 @@
 
 #include "allocation.hpp"
 #include "pointer.hpp"
-// #include "frame.hpp"
-// #include "memory.hpp"
+#include "frame.hpp"
+#include "memory.hpp"
 #include "types.hpp"
 
 
@@ -125,19 +125,25 @@
 //     }
 // }
 
-std::forward_list<Allocation> allocated {};
 
-template<typename T>
-Pointer<T> new_pointer()
-{
-    allocated.push_front(allocate<Float>(1));
-    auto& a = allocated.front();
-    return Pointer<T>(&a);
-}
 
-Pointer<Float> run()
+
+
+// std::forward_list<Allocation> allocated {};
+
+// template<typename T>
+// Pointer<T> new_pointer()
+// {
+//     allocated.push_front(allocate<Float>(1));
+//     auto& a = allocated.front();
+//     return Pointer<T>(&a);
+// }
+
+
+
+Pointer<Float> run(Frame& frame)
 {
-    auto num = new_pointer<Float>();
+    auto num = frame.new_pointer<Float>();
     num->value = 4.2;
     return num;
 }
@@ -199,10 +205,18 @@ int main()
 //     auto array1 = Array<Float, 1>();
 //     auto array2 = Array<Pointer<Float>, 1>();
 	
-    Function<Pointer<Float>()> f;
+	auto memory = MemoryManager();
+	auto root_frame = Frame(memory);
+	
+    Function<Pointer<Float>(Frame&)> f;
     f.function = &run;
-    auto p = f.function();
+    auto p = f.function(root_frame);
     std::cout << p->value << std::endl;
+    
+    
+    auto frame_call_return = root_frame.call<Float>(f);
+    std::cout << frame_call_return->value << std::endl;
+    std::cout << "ending everything, hopefully that frame is destroyed" << std::endl;
 
 	return 0;
 }
