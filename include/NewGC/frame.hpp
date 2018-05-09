@@ -3,6 +3,7 @@
 #include <iostream>
 #include <list>
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 #include "pointer.hpp"
@@ -21,35 +22,40 @@ struct Frame
 
     std::vector<PointerBase*> get_locals()
     {
-        // std::vector<PointerBase*> local_ptrs;
-        // for (auto& local : locals)
-        // {
-        //     local_ptrs.emplace_back(local);
-        // }
-        // return local_ptrs;
-        return locals;
+        std::vector<PointerBase*> local_ptrs;
+        for (auto& local : locals)
+        {
+            local_ptrs.emplace_back(local.get());
+        }
+        return local_ptrs;
+        // return locals;
     }
     
     template<typename T>
-    Pointer<T> new_pointer(std::size_t num = 1)
+    Pointer<T>& new_pointer(std::size_t num = 1)
     {
         auto& a = memory.allocated.emplace_front(memory.allocate<T>(num));
-        auto p = Pointer<T>(&a);
+        // auto p = Pointer<T>(&a);
+        auto& p = locals.emplace_back(std::make_unique<Pointer<T>>(&a));
         
-        return p;
+        auto* raw_ptr = p.get();
+        return *(static_cast<Pointer<T>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
     }
 
-    template<typename ReturnType, typename FunctionType, typename ... Args>
-    Pointer<ReturnType> call(Pointer<ReturnType>& return_value, const Function<FunctionType> func, const Pointer<Args>... args)
+    template<typename FunctionType, typename ... Args>
+    typename Function<FunctionType>::return_type& call(const Function<FunctionType>& func, const Pointer<Args>&... args)
     {
+        using ReturnType = typename Function<FunctionType>::return_type;
+        using ReturnNoRef = typename std::remove_reference<ReturnType>::type;
+        
         auto& next_frame = push();
-        next_frame.locals.emplace_back(args...);
-        return_value = func.function(next_frame, args...);
+        next_frame.locals.emplace_back(std::make_unique<Pointer<Args>>(args)...);
+        auto& return_value = func.function(next_frame, args...);
         std::cout << "Pointer call addr " << &return_value << std::endl;
-        locals.emplace_back(&return_value);
+        auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
         pop();
     
-        return return_value;
+        return *(static_cast<ReturnNoRef*>(local.get()));
     }
     
     Frame& push()
@@ -70,6 +76,6 @@ struct Frame
 
 private:
     MemoryManager& memory;
-    std::vector<PointerBase*> locals;
+    std::vector<std::unique_ptr<PointerBase>> locals;
     std::unique_ptr<Frame> next { nullptr };
 };

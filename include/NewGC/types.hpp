@@ -27,6 +27,7 @@ struct Function// : public Collectable
     // parameter types
     // function pointer
     // locals?
+    using return_type = typename std::function<T>::result_type;
     
     // virtual void mark_members(int mark) {};
 };
@@ -77,10 +78,10 @@ struct Struct : public Collectable
 };
 
 
-struct Float : public Collectable
+struct Float //: public Collectable
 {
     /*virtual*/ std::string name() /*override*/ { return "Float"; }
-    virtual void mark(int new_mark) override {
+    /*virtual*/ void mark(int new_mark) /*override*/ {
         std::cout << "Float mark!" << std::endl;
     };
     

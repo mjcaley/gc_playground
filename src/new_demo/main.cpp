@@ -142,13 +142,25 @@ void sweep(T& allocations)
 
 
 
-Pointer<Float> run(Frame& frame)
+// Pointer<Float> run(Frame& frame)
+// {
+//     auto num = frame.new_pointer<Float>();
+//     auto disposable = frame.new_pointer<Float>();
+//     num->value = 4.2;
+//     return num;
+// }
+
+
+Pointer<Float>& run(Frame& frame)
 {
-    auto num = frame.new_pointer<Float>();
-    auto disposable = frame.new_pointer<Float>();
+    auto& num = frame.new_pointer<Float>();
+    num = Pointer<Float>(num);
+    auto& disposable = frame.new_pointer<Float>();
+    disposable = Pointer<Float>(disposable);
     num->value = 4.2;
     return num;
 }
+
 
 int main()
 {
@@ -207,27 +219,67 @@ int main()
 //     auto array1 = Array<Float, 1>();
 //     auto array2 = Array<Pointer<Float>, 1>();
 	
-	auto memory = MemoryManager();
-	auto root_frame = Frame(memory);
 	
-    Function<Pointer<Float>(Frame&)> f;
-    f.function = &run;
-    auto p = f.function(root_frame);
-    std::cout << p->value << std::endl;
+// 	// new frame test code
+// 	auto memory = MemoryManager();
+// 	auto root_frame = Frame(memory);
+	
+//     Function<Pointer<Float>(Frame&)> f;
+//     f.function = &run;
+//     auto p = f.function(root_frame);
+//     std::cout << p->value << std::endl;
     
     
-    auto frame_call_return = root_frame.new_pointer<Float>();
-    std::cout << "Pointer stack addr " << &frame_call_return << std::endl;
-    root_frame.call(frame_call_return, f);
-    std::cout << frame_call_return->value << std::endl;
-    std::cout << "ending everything, hopefully that frame is destroyed" << std::endl;
-    std::cout << "Pointer's pointer (on stack) " << frame_call_return.get() << " " << frame_call_return.get()->value << std::endl;
+//     auto frame_call_return = root_frame.new_pointer<Float>();
+//     std::cout << "Pointer stack addr " << &frame_call_return << std::endl;
+//     root_frame.call(frame_call_return, f);
+//     std::cout << frame_call_return->value << std::endl;
+//     std::cout << "ending everything, hopefully that frame is destroyed" << std::endl;
+//     std::cout << "Pointer's pointer (on stack) " << frame_call_return.get() << " " << frame_call_return.get()->value << std::endl;
     
-    mark(root_frame);
-    sweep(memory.allocated);
+//     mark(root_frame);
+//     sweep(memory.allocated);
     
-    mark(root_frame);
-    sweep(memory.allocated);
+//     mark(root_frame);
+//     sweep(memory.allocated);
+
+
+    auto memory = MemoryManager();
+    auto frame = Frame(memory);
+    run(frame);
+    
+    // auto* float_lit = new Float();
+    // float_lit->mark(42);
+    
+    // auto& a = memory.allocated.emplace_front(memory.allocate<Float>(1));
+    // std::cout << "Allocatoin ptr " << a.pointer << std::endl;
+    // auto f = Pointer<Float>(&a);
+    // std::cout << " " << f.current_mark << std::endl;
+    // std::cout << f->value << std::endl;
+    // f.get()->mark(42); // segfault
+    // f.mark(42);
+    // f.construct();
+    // auto* f_ptr = f.get();
+    // std::cout << f_ptr << std::endl;
+    // std::cout << typeid(f_ptr).name() << std::endl;
+    // f_ptr->mark(42);
+    
+    auto func = Function<Pointer<Float>&(Frame&)>{ "run", &run };
+    // func.function = &run;
+    auto& ret = frame.call(func);
+    std::cout << ret->value << std::endl;
+    
+    for (auto& allocation : memory.allocated)
+    {
+        std::cout << "Allocation " << allocation.pointer << std::endl;
+    }
+    
+    auto roots = get_roots(&frame);
+    for (auto& ptr : roots)
+    {
+        std::cout << ptr << std::endl;
+        ptr->mark(42);
+    }
 
 	return 0;
 }

@@ -32,6 +32,14 @@ struct Allocation
     
     void reset()
     {
+        if (pointer)
+        {
+            std::cout << "Freeing pointer with something" << std::endl;
+        }
+        else
+        {
+            std::cout << "Freeing pointer with null" << std::endl;
+        }
         std::free(pointer);
     };
 };

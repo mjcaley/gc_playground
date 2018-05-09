@@ -13,10 +13,7 @@ struct PointerBase : public Collectable
     
     Allocation* allocation;
 
-    virtual void mark(int new_mark) override
-    {
-        allocation->mark = new_mark;
-    }
+    virtual void mark(int new_mark) = 0;
 };
 
 template<typename T>
@@ -29,9 +26,14 @@ struct Pointer : public PointerBase
     Pointer(const Pointer& p) : PointerBase(p.allocation) {};
     Pointer(const PointerBase& p) : PointerBase(p) {};
 
-    PointerBase to_base_pointer()
+    // PointerBase to_base_pointer()
+    // {
+    //     return PointerBase(allocation);
+    // }
+    
+    void construct()
     {
-        return PointerBase(allocation);
+        operator*() = T();
     }
     
     type& operator*()
@@ -98,10 +100,17 @@ struct Pointer : public PointerBase
         {
             current_mark = new_mark;
             allocation->mark = new_mark;
-            std::cout << "Allocation marked" << std::endl;
+            // std::cout << "Allocation marked" << std::endl;
             // std::cout << "Pointer's pointer " << get() << std::endl;
+            // void* ptr_copy = allocation->pointer;
+            // type* ptr_cast = static_cast<type*>(ptr_copy);
+            // std::cout << "Allocation ptr (casted) " << ptr_cast << std::endl;
+            // std::cout << "Allocation ptr value " << ptr_cast->value << std::endl;
+            // std::cout << "Allocation ptr mark " << ptr_cast->current_mark << std::endl;
+            // type* casted_var = static_cast<type*>(allocation->pointer);
+            // casted_var->mark(new_mark);
             // operator*().mark(new_mark);
-            static_cast<type*>(allocation->pointer)->mark(new_mark);
+            // static_cast<type*>(allocation->pointer)->mark(new_mark);
         }
     }
 };
