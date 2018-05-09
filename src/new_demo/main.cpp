@@ -216,7 +216,7 @@ int main()
     std::cout << p->value << std::endl;
     
     
-    Pointer<Float> frame_call_return;
+    auto frame_call_return = root_frame.new_pointer<Float>();
     std::cout << "Pointer stack addr " << &frame_call_return << std::endl;
     root_frame.call(frame_call_return, f);
     std::cout << frame_call_return->value << std::endl;

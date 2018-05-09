@@ -21,12 +21,13 @@ struct Frame
 
     std::vector<PointerBase*> get_locals()
     {
-        std::vector<PointerBase*> local_ptrs;
-        for (auto& local : locals)
-        {
-            local_ptrs.emplace_back(local.get());
-        }
-        return local_ptrs;
+        // std::vector<PointerBase*> local_ptrs;
+        // for (auto& local : locals)
+        // {
+        //     local_ptrs.emplace_back(local);
+        // }
+        // return local_ptrs;
+        return locals;
     }
     
     template<typename T>
@@ -39,12 +40,13 @@ struct Frame
     }
 
     template<typename ReturnType, typename FunctionType, typename ... Args>
-    Pointer<ReturnType> call(Pointer<ReturnType>& return_value, const Function<FunctionType> func, const Args... args)
+    Pointer<ReturnType> call(Pointer<ReturnType>& return_value, const Function<FunctionType> func, const Pointer<Args>... args)
     {
         auto& next_frame = push();
+        next_frame.locals.emplace_back(args...);
         return_value = func.function(next_frame, args...);
         std::cout << "Pointer call addr " << &return_value << std::endl;
-        locals.emplace_back(std::unique_ptr<Pointer<ReturnType>>(&return_value));
+        locals.emplace_back(&return_value);
         pop();
     
         return return_value;
@@ -68,6 +70,6 @@ struct Frame
 
 private:
     MemoryManager& memory;
-    std::vector<std::unique_ptr<PointerBase>> locals;
+    std::vector<PointerBase*> locals;
     std::unique_ptr<Frame> next { nullptr };
 };

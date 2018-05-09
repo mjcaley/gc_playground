@@ -94,12 +94,14 @@ struct Pointer : public PointerBase
     virtual void mark(int new_mark) override
     {
         std::cout << "Pointer mark!" << std::endl;
-        if (allocation->mark != new_mark)
+        if (current_mark != new_mark)
         {
+            current_mark = new_mark;
             allocation->mark = new_mark;
             std::cout << "Allocation marked" << std::endl;
-            std::cout << "Pointer's pointer " << get() << std::endl;
-            operator*().mark(new_mark);
+            // std::cout << "Pointer's pointer " << get() << std::endl;
+            // operator*().mark(new_mark);
+            static_cast<type*>(allocation->pointer)->mark(new_mark);
         }
     }
 };
