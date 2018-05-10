@@ -5,7 +5,7 @@
 
 struct Allocation
 {
-    Allocation(std::size_t length, void* pointer) : length(length), pointer(pointer) {};
+    Allocation(void* pointer) : pointer(pointer) {};
     Allocation(const Allocation&) = delete;
     Allocation(Allocation&& a)
     {
@@ -26,8 +26,7 @@ struct Allocation
         return *this;
     }
 
-    std::size_t length;
-    void* pointer;  // Make private?
+    void* pointer;
     int mark { -1 };
     
     void reset()

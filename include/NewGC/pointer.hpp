@@ -1,22 +1,18 @@
 #pragma once
 
-#include "collectable.hpp"
-
 
 struct Allocation;
 
-struct PointerBase : public Collectable
+struct PointerBase
 {
     PointerBase() : allocation(nullptr) {};
     PointerBase(Allocation* a) : allocation(a) {};
     PointerBase(const PointerBase& p) : allocation(p.allocation) {};
     
+    int current_mark { -1 };
     Allocation* allocation;
 
-    virtual void mark(int new_mark) override
-    {
-        allocation->mark = new_mark;
-    }
+    virtual void mark(int new_mark) = 0;
 };
 
 template<typename T>
@@ -28,58 +24,11 @@ struct Pointer : public PointerBase
     Pointer(Allocation* a) : PointerBase(a) {};
     Pointer(const Pointer& p) : PointerBase(p.allocation) {};
     Pointer(const PointerBase& p) : PointerBase(p) {};
-
-    PointerBase to_base_pointer()
-    {
-        return PointerBase(allocation);
-    }
     
     type& operator*()
     {
         return *(static_cast<type*>(allocation->pointer));
     }
-    
-    // Pointer& operator++()
-    // {
-    //     if ((position + 1) > (allocation->length - 1))
-    //     {
-    //         throw std::out_of_range("Pointer out of bounds");
-    //     }
-    //     ++position;
-    //     return *this;
-    // }
-    
-    // Pointer operator++(int)
-    // {
-    //     if ((position + 1) > (allocation->length - 1))
-    //     {
-    //         throw std::out_of_range("Pointer out of bounds");
-    //     }
-    //     auto old_p = Position(*this);
-    //     ++position;
-    //     return old_p;
-    // }
-    
-    // Pointer& operator--()
-    // {
-    //     if ((position - 1) < 0)
-    //     {
-    //         throw std::out_of_range("Pointer out of bounds");
-    //     }
-    //     --position;
-    //     return *this;
-    // }
-    
-    // Pointer operator--(int)
-    // {
-    //     if ((position - 1) > 0)
-    //     {
-    //         throw std::out_of_range("Pointer out of bounds");
-    //     }
-    //     auto old_p = Position(*this);
-    //     --position;
-    //     return old_p;
-    // }
     
     type* operator->()
     {
@@ -93,15 +42,11 @@ struct Pointer : public PointerBase
 
     virtual void mark(int new_mark) override
     {
-        std::cout << "Pointer mark!" << std::endl;
         if (current_mark != new_mark)
         {
             current_mark = new_mark;
             allocation->mark = new_mark;
-            std::cout << "Allocation marked" << std::endl;
-            // std::cout << "Pointer's pointer " << get() << std::endl;
-            // operator*().mark(new_mark);
-            static_cast<type*>(allocation->pointer)->mark(new_mark);
+            get()->mark(new_mark);
         }
     }
 };

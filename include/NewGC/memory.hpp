@@ -19,6 +19,6 @@ struct MemoryManager
         {
             throw std::bad_alloc();
         }
-        return Allocation {size, memory};
+        return Allocation { memory };
     }
 };
