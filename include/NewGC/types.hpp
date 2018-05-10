@@ -14,18 +14,6 @@ using Byte = std::byte;
 
 
 
-
-
-template<typename T>
-struct Function
-{
-    using return_type = typename std::function<T>::result_type;
- 
-    std::string name;
-    std::function<T> function;
-};
-
-
 template<typename T, std::size_t N>
 struct Array
 {

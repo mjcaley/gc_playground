@@ -34,16 +34,16 @@ struct Frame
         auto* raw_ptr = p.get();
         return *(static_cast<Pointer<T>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
     }
-
+    
     template<typename FunctionType, typename ... Args>
-    typename Function<FunctionType>::return_type& call(const Function<FunctionType>& func, Pointer<Args>&... args)
+    typename std::function<FunctionType>::result_type& call(const std::function<FunctionType> func, Pointer<Args>&... args)
     {
-        using ReturnType = typename Function<FunctionType>::return_type;
+        using ReturnType = typename std::function<FunctionType>::result_type;
         using ReturnNoRef = typename std::remove_reference<ReturnType>::type;
         
         auto& next_frame = push();
         next_frame.locals.emplace_back(std::make_unique<Pointer<Args>>(args)...);
-        auto& return_value = func.function(next_frame, args...);
+        auto& return_value = func(next_frame, args...);
         auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
         pop();
     

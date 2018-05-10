@@ -66,6 +66,8 @@ int num_allocations(MemoryManager& memory)
 }
 
 
+Pointer<Int>& fib(Frame& frame, Pointer<Int>& num);
+std::function<Pointer<Int>&(Frame&, Pointer<Int>&)> fib_func_ptr { &fib };
 Pointer<Int>& fib(Frame& frame, Pointer<Int>& num)
 {
     if (num->value <= 1)
@@ -78,10 +80,8 @@ Pointer<Int>& fib(Frame& frame, Pointer<Int>& num)
     left->value = num->value - 1;
     right->value = num->value - 2;
     
-    Function<Pointer<Int>&(Frame&, Pointer<Int>&)> fib_func { "fib", &fib };
-    
-    auto& left_ret = frame.call(fib_func, left);
-    auto& right_ret = frame.call(fib_func, right);
+    auto& left_ret = frame.call(fib_func_ptr, left);
+    auto& right_ret = frame.call(fib_func_ptr, right);
     
     auto& return_val = frame.new_pointer<Int>();
     return_val->value = left_ret->value + right_ret->value;
@@ -89,6 +89,9 @@ Pointer<Int>& fib(Frame& frame, Pointer<Int>& num)
     return return_val;
 }
 
+
+Pointer<Float>& run(Frame& frame);
+std::function<Pointer<Float>&(Frame&)> run_func_ptr { &run };
 Pointer<Float>& run(Frame& frame)
 {
     auto& num = frame.new_pointer<Float>();
@@ -96,6 +99,7 @@ Pointer<Float>& run(Frame& frame)
     auto& disposable = frame.new_pointer<Float>();
     disposable = Pointer<Float>(disposable);
     num->value = 4.2;
+    
     return num;
 }
 
@@ -104,10 +108,9 @@ int entry(Frame& frame)
 {
     frame.push();
     
-    Function<Pointer<Int>&(Frame&, Pointer<Int>&)> fib_func { "fib", &fib };
     auto& num = frame.new_pointer<Int>();
     num->value = 20;
-    auto& result = frame.call(fib_func, num);
+    auto& result = frame.call(fib_func_ptr, num);
     
     std::cout << result->value << std::endl;
 
@@ -120,11 +123,8 @@ int main()
     auto memory = MemoryManager();
     auto frame = Frame(memory);
     
-    auto func = Function<Pointer<Float>&(Frame&)>{ "run", &run };
-    auto& ret = frame.call(func);
+    auto& ret = frame.call(run_func_ptr);
     std::cout << ret->value << std::endl;
-    
-    
     
     
     entry(frame);
