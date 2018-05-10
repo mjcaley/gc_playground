@@ -36,7 +36,7 @@ struct Frame
     }
 
     template<typename FunctionType, typename ... Args>
-    typename Function<FunctionType>::return_type& call(const Function<FunctionType>& func, const Pointer<Args>&... args)
+    typename Function<FunctionType>::return_type& call(const Function<FunctionType>& func, Pointer<Args>&... args)
     {
         using ReturnType = typename Function<FunctionType>::return_type;
         using ReturnNoRef = typename std::remove_reference<ReturnType>::type;

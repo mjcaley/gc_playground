@@ -9,7 +9,7 @@
 
 using Bool = bool;
 using Byte = std::byte;
-using Int = std::int64_t;
+// using Int = std::int64_t;
 // using Float = double;
 
 
@@ -42,6 +42,16 @@ struct Array
             }
         }
     };
+};
+
+
+struct Int
+{
+    std::string name() { return "Int"; }
+
+    void mark(int new_mark) {};
+    
+    std::int64_t value;
 };
 
 

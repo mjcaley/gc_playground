@@ -54,6 +54,41 @@ void sweep(T& allocations)
 }
 
 
+int num_allocations(MemoryManager& memory)
+{
+    int allocs { 0 };
+    for (auto& allocation : memory.allocated)
+    {
+        ++allocs;
+    }
+    
+    return allocs;
+}
+
+
+Pointer<Int>& fib(Frame& frame, Pointer<Int>& num)
+{
+    if (num->value <= 1)
+    {
+        return num;
+    }
+    
+    auto& left = frame.new_pointer<Int>();
+    auto& right = frame.new_pointer<Int>();
+    left->value = num->value - 1;
+    right->value = num->value - 2;
+    
+    Function<Pointer<Int>&(Frame&, Pointer<Int>&)> fib_func { "fib", &fib };
+    
+    auto& left_ret = frame.call(fib_func, left);
+    auto& right_ret = frame.call(fib_func, right);
+    
+    auto& return_val = frame.new_pointer<Int>();
+    return_val->value = left_ret->value + right_ret->value;
+    
+    return return_val;
+}
+
 Pointer<Float>& run(Frame& frame)
 {
     auto& num = frame.new_pointer<Float>();
@@ -67,8 +102,16 @@ Pointer<Float>& run(Frame& frame)
 
 int entry(Frame& frame)
 {
+    frame.push();
     
+    Function<Pointer<Int>&(Frame&, Pointer<Int>&)> fib_func { "fib", &fib };
+    auto& num = frame.new_pointer<Int>();
+    num->value = 20;
+    auto& result = frame.call(fib_func, num);
+    
+    std::cout << result->value << std::endl;
 
+    frame.pop();
     return 0;
 }
 
@@ -81,20 +124,25 @@ int main()
     auto& ret = frame.call(func);
     std::cout << ret->value << std::endl;
     
-    std::cout << "Allocations:" << std::endl;
-    for (auto& allocation : memory.allocated)
-    {
-        std::cout << "Allocation " << allocation.pointer << std::endl;
-    }
+    
+    
+    
+    entry(frame);
+    
+    std::cout << "Allocations:" << num_allocations(memory) << std::endl;
+    // for (auto& allocation : memory.allocated)
+    // {
+    //     std::cout << "Allocation " << allocation.pointer << std::endl;
+    // }
     
     mark(frame);
     sweep(memory.allocated);
 
-    std::cout << "Allocations:" << std::endl;
-    for (auto& allocation : memory.allocated)
-    {
-        std::cout << "Allocation " << allocation.pointer << std::endl;
-    }
+    std::cout << "Allocations:" << num_allocations(memory) << std::endl;
+    // for (auto& allocation : memory.allocated)
+    // {
+    //     std::cout << "Allocation " << allocation.pointer << std::endl;
+    // }
 
 	return 0;
 }
