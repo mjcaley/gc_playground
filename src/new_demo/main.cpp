@@ -69,6 +69,14 @@ Pointer<Float>& run(Frame& frame)
 }
 
 
+Pointer<Int>& mult_locals(Frame& frame, Pointer<Int>&, Pointer<Int>&, Pointer<Int>&)
+{
+    auto& p = frame.new_pointer<Int>();
+    p->value = 5;
+    return p;
+}
+
+
 int entry(Frame& frame)
 {
     frame.push();
@@ -78,6 +86,8 @@ int entry(Frame& frame)
     auto& result = frame.call(fib_func_ptr, num);
     
     std::cout << result->value << std::endl;
+
+    frame.call(&mult_locals, frame.new_pointer<Int>(), frame.new_pointer<Int>(), frame.new_pointer<Int>());
 
     frame.pop();
     return 0;
