@@ -69,13 +69,16 @@ Pointer<Float>& run(Frame& frame)
 }
 
 
-Pointer<Int>& mult_locals(Frame& frame, Pointer<Int>&, Pointer<Int>&, Pointer<Int>&)
+void mult_locals(Frame& frame, Pointer<Int>&, int, float)
 {
     auto& p = frame.new_pointer<Int>();
     p->value = 5;
-    return p;
 }
 
+void void_func(Frame& frame)
+{
+    std::cout << "void_func called" << std::endl;
+}
 
 int entry(Frame& frame)
 {
@@ -87,7 +90,8 @@ int entry(Frame& frame)
     
     std::cout << result->value << std::endl;
 
-    frame.call(&mult_locals, frame.new_pointer<Int>(), frame.new_pointer<Int>(), frame.new_pointer<Int>());
+    frame.call(&void_func);
+    frame.call(&mult_locals, frame.new_pointer<Int>(), 5, 4.2f);
 
     frame.pop();
     return 0;

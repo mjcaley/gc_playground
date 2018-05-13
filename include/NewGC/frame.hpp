@@ -35,58 +35,47 @@ struct Frame
         auto* raw_ptr = p.get();
         return *(static_cast<Pointer<T>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
     }
-    
-    // template<typename FunctionType, typename ... Args>
-    // typename std::function<FunctionType>::result_type& call(const std::function<FunctionType> func, Pointer<Args>&... args)
-    // {
-    //     using ReturnType = typename std::function<FunctionType>::result_type;
-    //     using ReturnNoRef = typename std::remove_reference<ReturnType>::type;
-        
-    //     auto& next_frame = push();
-    //     next_frame.locals.emplace_back(std::make_unique<Pointer<Args>>(args)...);
-    //     auto& return_value = func(next_frame, args...);
-    //     auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
-    //     pop();
-    
-    //     return *(static_cast<ReturnNoRef*>(local.get()));
-    // }
 
-    void add_to_locals() {};
+    constexpr void add_to_locals() const {}
 
-    template<typename T>
-    void add_to_locals(T& arg) {
-        std::cout << "add_to_locals(T&)" << std::endl;
-    }
+    template<typename T> constexpr void add_to_locals(const T& arg) const {}
 
     template<typename T>
     void add_to_locals(Pointer<T>& ptr)
     {
-        // std::cout << "add_to_locals(Pointer<T>&)" << std::endl;
         locals.emplace_back(std::make_unique<Pointer<T>>(ptr));
     }
 
-    template<typename Arg, typename ... Args>
-    void add_to_locals(Arg& arg, Args&... args)
+    template<typename Arg, typename Arg2, typename ... Args>
+    void add_to_locals(Arg& arg, Arg2& arg2, Args&... args)
     {
-        std::cout << "add_to_locals(Arg&, Args&...)" << std::endl;
         add_to_locals(arg);
-        add_to_locals(args...);
+        add_to_locals(arg2, args...);
     }
 
     template<typename Function, typename ... Args>
-    typename std::invoke_result_t<Function, Frame&, Args& ...>& call(const Function func, Args&... args)
+    typename std::invoke_result_t<Function, Frame&, Args...> call(const Function func, Args&&... args)
     {
-        using ReturnType = typename std::invoke_result_t<Function, Frame&, Args& ...>;
+        using ReturnType = typename std::invoke_result_t<Function, Frame&, Args...>;
         using ReturnNoRef = typename std::remove_reference_t<ReturnType>;
         
         auto& next_frame = push();
-        // next_frame.locals.emplace_back(std::make_unique<Pointer<Args>>(args)...);
         next_frame.add_to_locals(args...);
-        auto& return_value = std::invoke(func, next_frame, args...);
-        auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
-        pop();
-    
-        return *(static_cast<ReturnNoRef*>(local.get()));
+        if constexpr (std::is_void<ReturnType>())
+        {
+            std::invoke(func, next_frame, args...);
+            pop();
+
+            return;
+        }
+        else
+        {
+            auto& return_value = std::invoke(func, next_frame, args...);
+            auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
+            pop();
+        
+            return *(static_cast<ReturnNoRef*>(local.get()));
+        }
     }
     
     Frame& push()
