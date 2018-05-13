@@ -1,29 +1,73 @@
 #pragma once
 
+#include <cstddef>
 
-struct Allocation;
+#include "allocation.hpp"
+
 
 struct PointerBase
 {
-    PointerBase() : allocation(nullptr) {};
-    PointerBase(Allocation* a) : allocation(a) {};
-    PointerBase(const PointerBase& p) : allocation(p.allocation) {};
-    
-    int current_mark { -1 };
-    Allocation* allocation;
+    PointerBase() = default;
 
     virtual void mark(int new_mark) = 0;
 };
 
+
 template<typename T>
-struct Pointer : public PointerBase
+struct PointerLiteral : PointerBase
 {
     using type = T;
     
-    Pointer() : PointerBase(nullptr) {};
-    Pointer(Allocation* a) : PointerBase(a) {};
-    Pointer(const Pointer& p) : PointerBase(p.allocation) {};
-    Pointer(const PointerBase& p) : PointerBase(p) {};
+    PointerLiteral() = default;
+    PointerLiteral(T literal) : literal(literal) {};
+    PointerLiteral(const PointerLiteral& p) : literal(p.literal) {};
+    
+    type& operator*()
+    {
+        return literal;
+    }
+    
+    type* operator&()
+    {
+        return &literal;
+    }
+    
+    void operator=(const T& other)
+    {
+        literal = other;
+    }
+    
+    type get()
+    {
+        return literal;
+    }
+    
+    T literal;
+    
+    virtual void mark(int new_mark) {};
+};
+
+
+struct PointerAllocation : public PointerBase
+{
+    PointerAllocation() : allocation(nullptr) {};
+    PointerAllocation(Allocation* a) : allocation(a) {};
+    PointerAllocation(const PointerAllocation& p) : allocation(p.allocation) {};
+    
+    int current_mark { -1 };
+    Allocation* allocation;
+    
+    virtual void mark(int new_mark) = 0;
+};
+
+template<typename T>
+struct Pointer : public PointerAllocation
+{
+    using type = T;
+    
+    Pointer() : PointerAllocation(nullptr) {};
+    Pointer(Allocation* a) : PointerAllocation(a) {};
+    Pointer(const Pointer& p) : PointerAllocation(p.allocation) {};
     
     type& operator*()
     {
@@ -50,3 +94,23 @@ struct Pointer : public PointerBase
         }
     }
 };
+
+
+template<>
+struct Pointer<int> : public PointerLiteral<int>
+{
+    Pointer(const Pointer& p) : PointerLiteral(p.literal) {};
+    Pointer(const int literal) : PointerLiteral(literal) {};
+};
+
+template<>
+struct Pointer<std::int64_t> : public PointerLiteral<std::int64_t> {};
+
+template<>
+struct Pointer<double> : public PointerLiteral<double> {};
+
+template<>
+struct Pointer<bool> : public PointerLiteral<bool> {};
+
+template<>
+struct Pointer<std::byte> : public PointerLiteral<std::byte> {};

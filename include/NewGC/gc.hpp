@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "pointer.hpp"
 #include "frame.hpp"
 
 
