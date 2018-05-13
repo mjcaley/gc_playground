@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+#include "allocation.hpp"
+#include "pointer.hpp"
 #include "frame.hpp"
 #include "memory.hpp"
 #include "types.hpp"
@@ -29,25 +31,25 @@ int num_allocations(MemoryManager& memory)
 }
 
 
-Pointer<std::int64_t>& fib(Frame& frame, Pointer<std::int64_t>& num);
-std::function<Pointer<std::int64_t>&(Frame&, Pointer<std::int64_t>&)> fib_func_ptr { &fib };
-Pointer<std::int64_t>& fib(Frame& frame, Pointer<std::int64_t>& num)
+Pointer<Int>& fib(Frame& frame, Pointer<Int>& num);
+std::function<Pointer<Int>&(Frame&, Pointer<Int>&)> fib_func_ptr { &fib };
+Pointer<Int>& fib(Frame& frame, Pointer<Int>& num)
 {
-    if (*num <= 1)
+    if (num->value <= 1)
     {
         return num;
     }
     
-    auto& left = frame.new_pointer<std::int64_t>();
-    auto& right = frame.new_pointer<std::int64_t>();
-    *left = *num - 1;
-    *right = *num - 2;
+    auto& left = frame.new_pointer<Int>();
+    auto& right = frame.new_pointer<Int>();
+    left->value = num->value - 1;
+    right->value = num->value - 2;
     
     auto& left_ret = frame.call(fib_func_ptr, left);
     auto& right_ret = frame.call(fib_func_ptr, right);
     
-    auto& return_val = frame.new_pointer<std::int64_t>();
-    *return_val = *left_ret + *right_ret;
+    auto& return_val = frame.new_pointer<Int>();
+    return_val->value = left_ret->value + right_ret->value;
     
     return return_val;
 }
@@ -71,11 +73,11 @@ int entry(Frame& frame)
 {
     frame.push();
     
-    auto& num = frame.new_pointer<std::int64_t>();
-    *num = 20;
+    auto& num = frame.new_pointer<Int>();
+    num->value = 20;
     auto& result = frame.call(fib_func_ptr, num);
     
-    std::cout << *result << std::endl;
+    std::cout << result->value << std::endl;
 
     frame.pop();
     return 0;

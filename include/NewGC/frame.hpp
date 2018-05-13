@@ -1,6 +1,5 @@
 #pragma once
 
-#include <cstddef>
 #include <iostream>
 #include <list>
 #include <memory>
@@ -72,44 +71,3 @@ private:
     std::vector<std::unique_ptr<PointerBase>> locals;
     std::unique_ptr<Frame> next { nullptr };
 };
-
-
-  
-template<>
-Pointer<std::int64_t>& Frame::new_pointer(std::size_t num)
-{
-    auto& p = locals.emplace_back(std::make_unique<Pointer<std::int64_t>>());
-    
-    auto* raw_ptr = p.get();
-    return *(static_cast<Pointer<std::int64_t>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
-}
-
-  
-template<>
-Pointer<std::byte>& Frame::new_pointer(std::size_t num)
-{
-    auto& p = locals.emplace_back(std::make_unique<Pointer<std::byte>>());
-    
-    auto* raw_ptr = p.get();
-    return *(static_cast<Pointer<std::byte>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
-}
-
-  
-template<>
-Pointer<double>& Frame::new_pointer(std::size_t num)
-{
-    auto& p = locals.emplace_back(std::make_unique<Pointer<double>>());
-    
-    auto* raw_ptr = p.get();
-    return *(static_cast<Pointer<double>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
-}
-
-  
-template<>
-Pointer<bool>& Frame::new_pointer(std::size_t num)
-{
-    auto& p = locals.emplace_back(std::make_unique<Pointer<bool>>());
-    
-    auto* raw_ptr = p.get();
-    return *(static_cast<Pointer<bool>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
-}
