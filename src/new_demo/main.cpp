@@ -80,6 +80,11 @@ void void_func(Frame& frame)
     std::cout << "void_func called" << std::endl;
 }
 
+int add(Frame&, int left, int right)
+{
+    return left + right;
+}
+
 int entry(Frame& frame)
 {
     frame.push();
@@ -92,6 +97,8 @@ int entry(Frame& frame)
 
     frame.call(&void_func);
     frame.call(&mult_locals, frame.new_pointer<Int>(), 5, 4.2f);
+    
+    std::cout << "Regular add: " << frame.call(&add, 4, 2) << std::endl;
 
     frame.pop();
     return 0;

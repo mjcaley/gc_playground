@@ -61,20 +61,27 @@ struct Frame
         
         auto& next_frame = push();
         next_frame.add_to_locals(args...);
-        if constexpr (std::is_void<ReturnType>())
+        if constexpr (std::is_void_v<ReturnType>)
         {
             std::invoke(func, next_frame, args...);
             pop();
 
             return;
         }
-        else
+        else if constexpr (std::is_convertible_v<PointerBase, ReturnNoRef>)
         {
-            auto& return_value = std::invoke(func, next_frame, args...);
+            ReturnType return_value = std::invoke(func, next_frame, args...);
             auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
             pop();
         
             return *(static_cast<ReturnNoRef*>(local.get()));
+        }
+        else
+        {
+            ReturnType return_value = std::invoke(func, next_frame, args...);
+            pop();
+        
+            return return_value;
         }
     }
     
