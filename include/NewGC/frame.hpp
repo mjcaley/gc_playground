@@ -68,7 +68,7 @@ struct Frame
 
             return;
         }
-        else if constexpr (std::is_convertible_v<PointerBase, ReturnNoRef>)
+        else if constexpr (std::is_base_of_v<PointerBase, ReturnNoRef>)
         {
             ReturnType return_value = std::invoke(func, next_frame, args...);
             auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
