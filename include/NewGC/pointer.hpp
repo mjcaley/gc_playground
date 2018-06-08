@@ -1,7 +1,7 @@
 #pragma once
 
+#include "allocation.hpp"
 
-struct Allocation;
 
 struct PointerBase
 {

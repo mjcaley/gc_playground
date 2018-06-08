@@ -7,6 +7,7 @@
 #include <iostream>
 #include <forward_list>
 #include <memory>
+#include <unordered_set>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,8 @@
 #include "memory.hpp"
 #include "types.hpp"
 #include "gc.hpp"
+
+#include "frame.hpp"
 
 
 
@@ -129,6 +132,14 @@ int main()
     // {
     //     std::cout << "Allocation " << allocation.pointer << std::endl;
     // }
+
+
+    // std::unordered_set<std::unique_ptr<PointerBase>> pointers;
+    // pointers.insert(std::make_unique<Pointer<Int>>());
+
+
+    auto f2 = Frame2<int> {};
+    
 
 	return 0;
 }

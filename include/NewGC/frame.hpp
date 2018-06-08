@@ -5,34 +5,36 @@
 #include <list>
 #include <memory>
 #include <type_traits>
-#include <vector>
+#include <unordered_set>
 
 #include "pointer.hpp"
 #include "types.hpp"
 #include "memory.hpp"
+#include "strategy.hpp"
 
 
 struct Frame
 {
     Frame(MemoryManager& memory) : memory(memory) {};
 
-    std::vector<PointerBase*> get_locals()
+    std::unordered_set<std::unique_ptr<PointerBase>>& get_locals()
     {
-        std::vector<PointerBase*> local_ptrs;
-        for (auto& local : locals)
-        {
-            local_ptrs.emplace_back(local.get());
-        }
-        return local_ptrs;
+        // std::unordered_set<PointerBase*> local_ptrs;
+        // for (auto& local : locals)
+        // {
+        //     local_ptrs.emplace_back(local.get());
+        // }
+        // return local_ptrs;
+        return locals;
     }
     
     template<typename T>
     Pointer<T>& new_pointer(std::size_t num = 1)
     {
         auto& a = memory.allocated.emplace_front(memory.allocate<T>(num));
-        auto& p = locals.emplace_back(std::make_unique<Pointer<T>>(&a));
+        auto p = locals.insert(std::make_unique<Pointer<T>>(&a));
         
-        auto* raw_ptr = p.get();
+        auto* raw_ptr = p.first->get();
         return *(static_cast<Pointer<T>*>(raw_ptr)); // have to cast the raw pointer since unique_ptr can't do it
     }
 
@@ -43,7 +45,7 @@ struct Frame
     template<typename T>
     void add_to_locals(Pointer<T>& ptr)
     {
-        locals.emplace_back(std::make_unique<Pointer<T>>(ptr));
+        locals.insert(std::make_unique<Pointer<T>>(ptr));
     }
 
     template<typename Arg, typename Arg2, typename ... Args>
@@ -63,22 +65,22 @@ struct Frame
         next_frame.add_to_locals(args...);
         if constexpr (std::is_void_v<ReturnType>)
         {
-            std::invoke(func, next_frame, args...);
+            std::invoke(std::forward<Function>(func), next_frame, std::foward<Args>(args)...);
             pop();
 
             return;
         }
         else if constexpr (std::is_base_of_v<PointerBase, ReturnNoRef>)
         {
-            ReturnType return_value = std::invoke(func, next_frame, args...);
-            auto& local = locals.emplace_back(std::make_unique<ReturnNoRef>(return_value));
+            ReturnType return_value = std::invoke(std::forward<Function>(func), next_frame, std::foward<Args>(args)...);
+            auto local = locals.insert(std::make_unique<ReturnNoRef>(return_value));
             pop();
         
-            return *(static_cast<ReturnNoRef*>(local.get()));
+            return *(static_cast<ReturnNoRef*>(local.first->get()));
         }
         else
         {
-            ReturnType return_value = std::invoke(func, next_frame, args...);
+            ReturnType return_value = std::invoke(std::forward<Function>(func), next_frame, std::foward<Args>(args)...);
             pop();
         
             return return_value;
@@ -103,6 +105,6 @@ struct Frame
 
 private:
     MemoryManager& memory;
-    std::vector<std::unique_ptr<PointerBase>> locals;
+    std::unordered_set<std::unique_ptr<PointerBase>> locals;
     std::unique_ptr<Frame> next { nullptr };
 };

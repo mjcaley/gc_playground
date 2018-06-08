@@ -19,6 +19,10 @@ add_subdirectory(src/demo)
 set(NEW_DEMO new_demo)
 add_subdirectory(src/new_demo)
 
+# New Demo program
+set(NEW_DEMO2 new_demo2)
+add_subdirectory(src/new_demo2)
+
 # Performance test
 set(PERFTEST perftest)
 add_subdirectory(src/perftest)
